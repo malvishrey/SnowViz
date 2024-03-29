@@ -34,7 +34,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
     onAdd: function(map) {
         this._initLayout();
         this._update();
-
+        // console.log('add');
         map
             .on('layeradd', this._onLayerChange, this)
             .on('layerremove', this._onLayerChange, this);
@@ -43,6 +43,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
     },
 
     onRemove: function(map) {
+        // console.log('rem');
         map
             .off('layeradd', this._onLayerChange)
             .off('layerremove', this._onLayerChange);
@@ -61,6 +62,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
     },
 
     removeLayer: function(layer) {
+        // console.log('removeLayer',layer);
         var id = L.Util.stamp(layer);
         delete this._layers[id];
         this._update();
@@ -221,6 +223,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
 
     _addLayer: function(layer, name, group, overlay) {
         var id = L.Util.stamp(layer);
+        // console.log('addid',id);
 
         this._layers[id] = {
             layer: layer,
@@ -272,9 +275,10 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
             overlaysPresent = false,
             i,
             obj;
-
+        // console.log('updaetereache')
         for (i in this._layers) {
             obj = this._layers[i];
+            // console.log('y',);
             this._addItem(obj);
             overlaysPresent = overlaysPresent || obj.overlay;
             baseLayersPresent = baseLayersPresent || !obj.overlay;
@@ -284,11 +288,15 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
 
     _onLayerChange: function(e) {
         var obj = this._layers[L.Util.stamp(e.layer)];
+        
 
         if (!obj) {
             return;
         }
-
+        if (!this._map) {
+            return;
+        }
+        // console.log('le',obj,this);
         if (!this._handlingClick) {
             this._update();
         }
@@ -318,6 +326,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
     },
 
     _addItem: function(obj) {
+        // console.log('additemx',this,this._map);
         var label = document.createElement('div'),
             input,
             checked = this._map.hasLayer(obj.layer),

@@ -22,8 +22,21 @@
     <!-- jQuery UI -->
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+	<script src="https://unpkg.com/georaster"></script>
+    <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
 
 	<style>
+		.legend {
+    line-height: 18px;
+    color: #555;
+}
+.legend i {
+    width: 18px;
+    height: 18px;
+    /* float: left; */
+    margin-right: 8px;
+    opacity: 0.7;
+}
 		html, body {
 			height: 100%;
 			margin: 0;
@@ -64,6 +77,8 @@
 <div id="map" style="width: 2000px; height: 1000px;"></div>
 <input type="text" id="datepicker" placeholder="Select Date">
 
+<script src="legends.js"></script>
+<script src="layers.js"></script>
 <script src="snowviz.js"></script>
 
 

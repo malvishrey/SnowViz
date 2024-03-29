@@ -2,185 +2,44 @@
 var active_layers = {};
 var streets,imagery,topographic,terrain;
 var SWE, DEPTH;
+// var legend;
 
-function define_basemaps(){
 
-  streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19,
-    attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-  });
-  streets.name = 'Streets';
-  if(!('Streets' in active_layers))
-    active_layers['Streets'] = true;
 
-  imagery = L.tileLayer('https://server.arcgisonline.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-      maxZoom: 19,
-      attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-  });
-  imagery.name = 'Imagery';
-  if(!('Imagery' in active_layers))
-    active_layers['Imagery'] = false;
 
-  topographic = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-      maxZoom: 17,
-      attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-  });
-  topographic.name = 'Topographic';
-  if(!('Topographic' in active_layers))
-    active_layers['Topographic'] = false;
 
-  terrain = L.tileLayer('https://{s}.tile.thunderforest.com/outdoors/{z}/{x}/{y}.png?apikey={apikey}', {
-      maxZoom: 22,
-      attribution: 'Map data &copy; <a href="https://www.thunderforest.com/">Thunderforest</a> contributors'
-  });
-  terrain.name = 'Terrain';
-  if(!('Terrain' in active_layers))
-    active_layers['Terrain'] = false;
-
-}
-
-function define_snowmaps(date){
-  console.log(date);
-  if(date ==null || date =='2024-03-22'){
-    swe_url = 'data/SNODAS/img100_swe_2/{z}/{x}/{y}.png';
-    depth_url = 'data/SNODAS/img100/{z}/{x}/{y}.png';
-  }
-  else{
-    swe_url = 'data/SNODAS/SNODAS_SWE_301221/{z}/{x}/{y}.png';
-    depth_url = 'data/SNODAS/SNODAS_SWE_311221/{z}/{x}/{y}.png';
-  }
-  SWE = L.tileLayer(swe_url, {
-    tms: true,
-    attribution: 'Your attribution',
-    // maxZoom: 12
-    maxNativeZoom: 7,
-    // nativeZooms: [2, 7]
-  });
-  SWE.name = 'SWE';
-  if(!('SWE' in active_layers))
-    active_layers['SWE'] = false;
-  
-  DEPTH = L.tileLayer(depth_url, {
-    tms: true,
-    attribution: 'Your attribution',
-    maxNativeZoom: 7,
-    // nativeZooms: [2, 7]
-  });
-  DEPTH.name = 'DEPTH';
-  if(!('DEPTH' in active_layers))
-    active_layers['DEPTH'] = false;
-}
 
 var circle;
-var olayers = {};
+// var olayers = {};
 
-var circleLayerCustomID = 'myCircleLayer';
+var SNOTELCustomID = 'SNOTEL';
 
-var circleLayer = L.layerGroup();
-circleLayer._leaflet_id = circleLayerCustomID; 
+var SNOTEL;
+var WB_HU2,WB_HU6,WB_HU4,WB_HU8;
+
 
 // Create a hashmap for station IDs
-var stationHashMap = {};
+// var stationHashMap = {};
 
 // Parse CSV file
-Papa.parse('data/SNOTEL/az_snotel.csv', {
-  download: true,
-  header: true,
-  complete: function(results) {
-    var data = results.data;
-    data.forEach(function(row) {
-      // Extract latitude, longitude, and station ID
-      var lat = parseFloat(row.Latitude);
-      var lng = parseFloat(row.Longitude);
-      var stationId = row['Station Id'];
-
-      // Create circle options
-      var circleOptions = {
-        color: 'red',
-        fillColor: '#f03',
-        fillOpacity: 0.5,
-        radius: 500 // Initial radius in meters
-      };
-
-      // Create circle
-      var circle = L.circle([lat, lng], circleOptions).addTo(circleLayer);
-      
-
-
-      var popup = L.popup();
-
-      var photoImg = '<img src="data/SNOTEL/output_image.png" height="150px" width="150px"/>';
-
-          popup.setContent("<center> Station Id: " +stationId+" </center>" + "</br>"+ photoImg);
-          circle.bindTooltip("<center>Station Id: "  +stationId+" </center>" + "</br>"+ photoImg);
-          // circle.bindPopup(popup).openPopup();
-
-
-     
-
-      // Function to update circle radius based on zoom level
-      function updateCircleRadius() {
-        var zoom = map.getZoom();
-        var newRadius = 500 / Math.pow(2, zoom - 10); // Adjust the division factor as needed
-        circle.setRadius(newRadius);
-      }
-
-      // Event listener to update circle radius when map zoom changes
-      map.on('zoomend', updateCircleRadius);
-
-      // Initial update of circle radius
-      updateCircleRadius();
-
-      // Add station ID to hashmap
-      stationHashMap[stationId] = circle;
-    });
-  }
-});
-
-
-olayers['SNOTEL'] = circleLayer;
-
-// Function to retrieve circle by station ID
-function getCircleByStationId(stationId) {
-  return stationHashMap[stationId];
-}
-
-
-  function addWatershedBoundary(watershedGeoJSONFile,ws) {
-    var watershed_boundary = new L.geoJson();
-    $.ajax({
-        url: watershedGeoJSONFile,
-        beforeSend: function(xhr) {
-            if (xhr.overrideMimeType) {
-                xhr.overrideMimeType("application/json");
-            }
-        },
-        dataType: "json",
-        success: function(data) {
-            $(data.features).each(function(key, data) {
-                watershed_boundary.addData(data);
-                watershed_boundary.setStyle({
-                    "fillOpacity": 0.1
-                });
-            });
-        }
-    });
-    watershed_boundary._leaflet_id = ws;
-    return watershed_boundary
-}   
-olayers['WB_HU4'] = addWatershedBoundary('data/WBD/wbdhu4_salt.geojson','WB_HU4');
-olayers['WB_HU6'] = addWatershedBoundary('data/WBD/output.geojson','WB_HU6');
-olayers['WB_HU10'] = addWatershedBoundary('data/WBD/output10.geojson','WB_HU10');
-
 
 define_basemaps();
-define_snowmaps(null);
+define_snowmaps("2024-03-25");
 
 // Create map instance
 var map = L.map('map', {
   layers: [streets] // Default basemap layer
 }).setView([34.43854, -111.39367995967369], 7);
 
+map.createPane('points');
+map.getPane('points').style.zIndex = 10000;
+map.createPane('bubbles');
+map.getPane('bubbles').style.zIndex = 20000;
+define_overlays();
+
+// legends();
+var legend_swe = legends(map,'SWE');
+var legend_depth = legends(map,'DEPTH');
 
 var baseMaps = [
   { 
@@ -188,7 +47,7 @@ var baseMaps = [
     expanded : false  ,
     layers    : {
       "Streets": streets,
-    "Imagery": imagery,
+    "Planet Imagery": imagery,
     "Topographic": topographic,
     "Terrain": terrain
     }
@@ -222,7 +81,14 @@ var SnowMaps = [
       groupName : "Overlays",
       expanded : false,
       exclusive: false,
-      layers    : olayers
+      layers    : {
+        "SNOTEL":SNOTEL,
+        "WB_HU2":WB_HU2,
+        "WB_HU4":WB_HU4,
+        "WB_HU6":WB_HU6,
+        "WB_HU8":WB_HU8,
+        
+      }
     }									
   ];
 var control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
@@ -233,12 +99,15 @@ function updateSnowLayers(date) {
   map.eachLayer(function(layer_1) {
     
     map.removeLayer(layer_1);
+    
 });
+// console.log('a',legend);
   // Remove existing layers from SnowMaps array
   map.removeControl(control);
 
   define_basemaps();
   define_snowmaps(date);
+  define_overlays();
 
   baseMaps = [
     { 
@@ -246,7 +115,7 @@ function updateSnowLayers(date) {
       expanded : false  ,
       layers    : {
         "Streets": streets,
-      "Imagery": imagery,
+      "Planet Imagery": imagery,
       "Topographic": topographic,
       "Terrain": terrain
       }
@@ -262,17 +131,42 @@ function updateSnowLayers(date) {
       "SWE": SWE,
      
       }
-    }							
+    },
+    { 
+      groupName : "Overlays",
+      expanded : false,
+      exclusive: false,
+      layers    : {
+        "SNOTEL":SNOTEL,
+        "WB_HU2":WB_HU2,
+        "WB_HU4":WB_HU4,
+        "WB_HU6":WB_HU6,
+        "WB_HU8":WB_HU8,
+        
+      }
+    }									
   ];	
   for (const [key, value] of Object.entries(baseMaps[0].layers)) {
     if(active_layers_copy[value.name]==true){
-      console.log(value.name);
+      // console.log(value.name);
       value.addTo(map);
     }
   }
   for (const [key, value] of Object.entries(SnowMaps[0].layers)) {
     if(active_layers_copy[value.name]==true){
       console.log(value.name);
+      value.addTo(map);
+      if(value.name=='SWE'){
+        legend_swe.addTo(map);
+      }
+      if(value.name=='DEPTH'){
+        legend_depth.addTo(map);
+      }
+    }
+  }
+  for (const [key, value] of Object.entries(SnowMaps[1].layers)) {
+    if(active_layers_copy[value.name]==true){
+      // console.log('xreac',value);
       value.addTo(map);
     }
   }
@@ -307,20 +201,91 @@ map.on('baselayerchange', function(e) {
 map.on('overlayadd', function(e) {
   console.log('added',e);
   active_layers[e.layer.name] = true;
+  if(e.layer.name=='SWE'){
+    legend_swe.addTo(map);
+  }
+  if(e.layer.name=='DEPTH'){
+    legend_depth.addTo(map);
+  }
+  console.log(active_layers);
+
+  
 });
 map.on('overlayremove', function(e) {
   console.log('remove',e);
   active_layers[e.layer.name] = false;
+  if(e.layer.name=='SWE'){
+    map.removeControl(legend_swe);
+    legend_swe = legends(map,'SWE');
+  }
+  if(e.layer.name=='DEPTH'){
+    map.removeControl(legend_depth);
+    legend_depth = legends(map,'DEPTH');
+  }
 });
+
+
+var availDates;
+
+$(document).ready(function() {
+    // Function to fetch and process the list of dates
+    function fetchDatesList() {
+        $.ajax({
+            url: 'dates_list.txt',
+            dataType: 'text',
+            success: function(data) {
+                // Split the data into an array of dates
+                availDates = data.split('\n').filter(Boolean); // Remove empty elements
+
+                // Print the list of dates
+                // console.log("Dates List:");
+                // availDates.forEach(function(date) {
+                //     console.log(date);
+                // });
+
+                // You can now use availDates as needed in your JavaScript code
+            },
+            error: function(xhr, status, error) {
+                console.error('Error loading file:', error);
+            }
+        });
+    }
+
+    // Call the fetchDatesList function on page load
+    fetchDatesList();
+
+    
+});
+
+// var unavailableDates = ["24-3-2024", "23-3-2024", "22-3-2024"];
+
+    function unavailable(date) {
+        dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+        // console.log(dmy);
+        if ( date.getFullYear() < 2023) {
+          return [false, "", "Unavailable"];
+      }
+        if ($.inArray(dmy, availDates) != -1) {
+            return [true, ""];
+        } else {
+            return [false, "", "Unavailable"];
+        }
+    }
 // Initialize jQuery UI Datepicker widget
 $(function() {
   $("#datepicker").datepicker({
     dateFormat: 'yy-mm-dd',
+    changeMonth: true,
+      changeYear: true,
+    beforeShowDay: unavailable,
     onSelect: function(dateText) {
       // Call the function to update SWE and Depth layers based on the selected date
       updateSnowLayers(dateText);
     }
   });
 });
+
+// legend.addTo(map);
+L.control.scale().addTo(map);
 
 
