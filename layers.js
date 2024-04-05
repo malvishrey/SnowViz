@@ -1,4 +1,50 @@
-function define_basemaps(){
+function fetchDatesListP() {
+  $.ajax({
+      url: 'dates_list_planet.txt',
+      dataType: 'text',
+      async: false,
+      success: function(data) {
+          // Split the data into an array of dates
+          availDatesPlanet = data.split('\n').filter(Boolean); // Remove empty elements
+
+          // Print the list of dates
+          // console.log("Dates List:");
+          // availDates.forEach(function(date) {
+          //     console.log(date);
+          // });
+          console.log('re');
+          // You can now use availDates as needed in your JavaScript code
+      },
+      error: function(xhr, status, error) {
+          console.error('Error loading file:', error);
+      }
+  });
+}
+
+// Call the fetchDatesList function on page load
+fetchDatesListP();
+function get_date(referenceDateString){
+  
+  // const referenceDateString = '2024-04-05';
+console.log('x',availDatesPlanet);
+// Convert date strings to Date objects
+const dates = availDatesPlanet.map(dateStr => new Date(dateStr));
+const referenceDate = new Date(referenceDateString);
+
+// Filter dates smaller than the reference date
+const pastDates = dates.filter(date => date < referenceDate);
+
+// Find the greatest date smaller than the reference date
+let greatestDate = pastDates.reduce((prev, curr) => {
+    return prev > curr ? prev : curr;
+});
+const index = availDatesPlanet.findIndex(dateStr => dateStr === greatestDate.toISOString().split('T')[0]);
+
+// Get the index of the greatest date in the original array
+console.log(availDatesPlanet[index],availDatesPlanet[index-1]);
+return availDatesPlanet[index]+'_'+availDatesPlanet[index-1];
+}
+function define_basemaps(date){
 
     streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -7,15 +53,21 @@ function define_basemaps(){
     streets.name = 'Streets';
     if(!('Streets' in active_layers))
       active_layers['Streets'] = true;
-  
-    imagery = L.tileLayer('https://tiles3.planet.com/basemaps/v1/planet-tiles/global_monthly_2023_04_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8', {
+    var planet_url;
+    if(date==null){
+      planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+  }else{
+    var new_date  = get_date(date);
+    planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_'+new_date+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+  }
+  imagery = L.tileLayer(planet_url, {
         maxZoom: 19,
         attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
     });
     imagery.name = 'Imagery';
     if(!('Imagery' in active_layers))
       active_layers['Imagery'] = false;
-  
+
     topographic = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         maxZoom: 17,
         attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
@@ -127,9 +179,11 @@ function define_basemaps(){
     
             var photoImg = '<img src="data/SNOTEL/output_image.png" height="150px" width="150px"/>';
     
-                popup.setContent("<center> Station Id: " +row['Station Id']+" </center></br><center>" +row['Station Name']+"</center></br>"+ photoImg);
+                // popup.setContent("<center> Station Id: " +row['Station Id']
+                // +" </center></br><center>" +row['Station Name']+"</center></br>"+photoImg);
                 // circle.bindTooltip("<center>Station Id: "  +stationId+" </center>" + "</br>"+ photoImg);
-                circle.bindTooltip("<center> Station Id: " +row['Station Id']+" </center></br><center>" +row['Station Name']+"</center></br>"+ photoImg, {
+                circle.bindTooltip("<center> Station Id: " +row['Station Id'] + " (" + row['Latitude']+","+row['Longitude']+")"
+                +" </center><center> Name: " +row['Station Name']+"</center><center> Elevation: "+row['Elevation']+"</center></br><center>"+photoImg, {
                     pane: 'bubbles',
                     autoPan: false
                 });
@@ -171,6 +225,7 @@ function define_basemaps(){
   
     WB_HU2 = addWatershedBoundary('data/WBD/output2.geojson','WB_HU2');
     WB_HU2.name = 'WB_HU2';
+    
     if(!('WB_HU2' in active_layers))
         active_layers['WB_HU2'] = false;
   

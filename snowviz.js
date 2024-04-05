@@ -23,14 +23,14 @@ var WB_HU2,WB_HU6,WB_HU4,WB_HU8;
 
 // Parse CSV file
 
-define_basemaps();
+define_basemaps("2024-04-01");
 define_snowmaps("2024-03-25");
 
 // Create map instance
 var map = L.map('map', {
   layers: [streets] // Default basemap layer
-}).setView([34.43854, -111.39367995967369], 7);
-
+}).setView([34.0489, -111.0937], 6);
+// 34.0489° N, 111.0937° W
 map.createPane('points');
 map.getPane('points').style.zIndex = 10000;
 map.createPane('bubbles');
@@ -72,6 +72,7 @@ var SnowMaps = [
       expanded : true,
       exclusive: true,
       layers    : {
+        "No Layer":L.tileLayer(''),
         "DEPTH": DEPTH,
       "SWE": SWE,
      
@@ -105,7 +106,7 @@ function updateSnowLayers(date) {
   // Remove existing layers from SnowMaps array
   map.removeControl(control);
 
-  define_basemaps();
+  define_basemaps(date);
   define_snowmaps(date);
   define_overlays();
 
@@ -127,6 +128,7 @@ function updateSnowLayers(date) {
       expanded : true,
       exclusive: true,
       layers    : {
+        "No Layer":L.tileLayer(''),
         "DEPTH": DEPTH,
       "SWE": SWE,
      
@@ -137,6 +139,7 @@ function updateSnowLayers(date) {
       expanded : false,
       exclusive: false,
       layers    : {
+        
         "SNOTEL":SNOTEL,
         "WB_HU2":WB_HU2,
         "WB_HU4":WB_HU4,
@@ -226,6 +229,7 @@ map.on('overlayremove', function(e) {
 
 
 var availDates;
+var availDatesPlanet;
 
 $(document).ready(function() {
     // Function to fetch and process the list of dates
@@ -256,6 +260,10 @@ $(document).ready(function() {
 
     
 });
+
+
+
+
 
 // var unavailableDates = ["24-3-2024", "23-3-2024", "22-3-2024"];
 
