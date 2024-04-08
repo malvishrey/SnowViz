@@ -44,6 +44,7 @@ const index = availDatesPlanet.findIndex(dateStr => dateStr === greatestDate.toI
 console.log(availDatesPlanet[index],availDatesPlanet[index-1]);
 return availDatesPlanet[index]+'_'+availDatesPlanet[index-1];
 }
+var planet_url;
 function define_basemaps(date){
 
     streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -53,11 +54,12 @@ function define_basemaps(date){
     streets.name = 'Streets';
     if(!('Streets' in active_layers))
       active_layers['Streets'] = true;
-    var planet_url;
+    
     if(date==null){
       planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
   }else{
     var new_date  = get_date(date);
+
     planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_'+new_date+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
   }
   imagery = L.tileLayer(planet_url, {
@@ -95,10 +97,10 @@ function define_basemaps(date){
     else{
     //   console.log(date.replace(/-/g, ''));
       date = date.replace(/-/g, '');
-      date = '2021'+date.slice(4);
+      // date = '2021'+date.slice(4);
       // console.log()    
-      swe_url = 'data/SNODAS/SNODAS_SWE_'+date+'/{z}/{x}/{y}.png';
-      depth_url = 'data/SNODAS/SNODAS_DEPTH_'+date+'/{z}/{x}/{y}.png';
+      swe_url = 'data/SWANN/SWANN_SWE_'+date+'/{z}/{x}/{y}.png';
+      depth_url = 'data/SNODAS/SNODAS_DEPTH_'+'2021'+date.slice(4)+'/{z}/{x}/{y}.png';
     }
     SWE = L.tileLayer(swe_url, {
       tms: true,

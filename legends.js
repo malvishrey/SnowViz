@@ -1,3 +1,19 @@
+function extract(url_temp){
+  // Regular expression to match the date pattern in the URL
+const datePattern = /(\d{4}-\d{2}-\d{2})_(\d{4}-\d{2}-\d{2})/;
+
+// Extracting the date range from the URL
+const matches = url_temp.match(datePattern);
+
+if (matches && matches.length >= 3) {
+    const startDate = matches[1]; // Extracted start date
+    const endDate = matches[2]; // Extracted end date
+    return startDate + '-' + endDate; 
+} else {
+    return '';
+}
+
+}
 function getColor(d) {
     return d > 1000 ? '#800026' :
            d > 500  ? '#BD0026' :
@@ -16,9 +32,12 @@ function getColor(d) {
     legend.onAdd = function (map) {
     
         var containerDiv = L.DomUtil.create('div', 'legend-container');
-    containerDiv.style.backgroundColor = '#ffffff'; // Set white background color
+        containerDiv.style.backgroundColor = '#ffffff'; // Set subtle background color
+        containerDiv.style.border = '1px solid #ccc'; // Add border
+        containerDiv.style.borderRadius = '8px'; // Make edges rounded
+        containerDiv.style.padding = '5px'; // Add padding
     containerDiv.style.width = '250px'; // Set width to 200 pixels
-    containerDiv.style.height = '50px'; // Set height to 100 pixels
+    containerDiv.style.height = '60px'; // Set height to 100 pixels
     
     var img = document.createElement('img');
     if(type=='SWE'){
@@ -38,33 +57,35 @@ function getColor(d) {
   
   }
 
-
-//   function legends(map){
+  function legends2(map, text) {
+    text = extract(text);
     
-//     legend = L.control({position: 'bottomleft'});
+    var legend = L.control({position: 'bottomright'});
     
-//     legend.onAdd = function (map) {
+    legend.onAdd = function (map) {
+        var containerDiv = L.DomUtil.create('div', 'legend-container');
+        
+        // Set styles for the container
+        containerDiv.style.backgroundColor = '#f9f9f9'; // Set subtle background color
+        containerDiv.style.border = '1px solid #ccc'; // Add border
+        containerDiv.style.borderRadius = '8px'; // Make edges rounded
+        containerDiv.style.padding = '5px'; // Add padding
+        containerDiv.style.width = '250px'; // Set width to 50 pixels (80% reduction)
+        containerDiv.style.height = 'auto'; // Set height to auto
+        
+        var textElement = document.createElement('p'); // Create a paragraph element
+        textElement.innerHTML = '<b>Planet Imagery - Biweekly</b><br>' +text +' (Regional)'; // Set the text content with line breaks
+        textElement.style.textAlign = 'center'; // Set text alignment to center
+        textElement.style.margin = '0'; // Remove any default margin
+        textElement.style.lineHeight = '1.2'; // Set line height
+        textElement.style.width = '100%'; // Set width to 100% to fill the container
+        textElement.style.fontFamily = 'Arial, sans-serif'; // Set font family
+        textElement.style.fontSize = '10px'; // Set font size to 10 pixels (80% reduction)
+        textElement.style.color = '#333'; // Set font color
+        
+        containerDiv.appendChild(textElement); // Append the text element to the container div
+        return containerDiv;
+    };
     
-//         var div = L.DomUtil.create('div', 'info legend'),
-//             grades = [0, 1, 2, 5, 10, 50, 100],
-//             labels = [];
-    
-//         // Loop through our density intervals and generate a label with a colored square and tick for each interval
-//         for (var i = 0; i < grades.length; i++) {
-//             var from = grades[i];
-    
-//             div.innerHTML +=
-//                 '<div style="display: inline-block; position: relative;">' +
-//                 '<div style="width: 15px; height: 15px; background: ' + getColor(from + 1) + ';"></div>' +
-//                 '<div style=" font-size: 8px;">' + from + '</div>' +
-//                 '</div>';
-//         }
-    
-//         // Add some bottom margin to separate from the map
-//         div.style.marginBottom = '20px';
-    
-//         return div;
-//     };
-  
-  
-//   }
+    return legend;
+}

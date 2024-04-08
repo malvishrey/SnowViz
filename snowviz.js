@@ -16,6 +16,16 @@ var SNOTELCustomID = 'SNOTEL';
 
 var SNOTEL;
 var WB_HU2,WB_HU6,WB_HU4,WB_HU8;
+var currentDate = new Date();
+
+// Get the current day (0-6, where 0 represents Sunday)
+var currentDay = currentDate.getDate();
+
+// Get the current month (0-11, where 0 represents January)
+var currentMonth = currentDate.getMonth() + 1; // Adding 1 to get 1-12 format
+
+// Get the current year (4 digits)
+var currentYear = currentDate.getFullYear();
 
 
 // Create a hashmap for station IDs
@@ -24,7 +34,7 @@ var WB_HU2,WB_HU6,WB_HU4,WB_HU8;
 // Parse CSV file
 
 define_basemaps("2024-04-01");
-define_snowmaps("2024-03-25");
+define_snowmaps("2024-04-01");
 
 // Create map instance
 var map = L.map('map', {
@@ -40,6 +50,8 @@ define_overlays();
 // legends();
 var legend_swe = legends(map,'SWE');
 var legend_depth = legends(map,'DEPTH');
+var legend_ps = legends2(map,planet_url);
+
 
 var baseMaps = [
   { 
@@ -73,8 +85,8 @@ var SnowMaps = [
       exclusive: true,
       layers    : {
         "No Layer":L.tileLayer(''),
-        "DEPTH": DEPTH,
-      "SWE": SWE,
+        "SNODAS DEPTH": DEPTH,
+      "SWANN SWE": SWE,
      
       }
     },
@@ -105,10 +117,13 @@ function updateSnowLayers(date) {
 // console.log('a',legend);
   // Remove existing layers from SnowMaps array
   map.removeControl(control);
+  map.removeControl(legend_ps);
+  
 
   define_basemaps(date);
   define_snowmaps(date);
   define_overlays();
+  legend_ps = legends2(map,planet_url);
 
   baseMaps = [
     { 
@@ -129,8 +144,8 @@ function updateSnowLayers(date) {
       exclusive: true,
       layers    : {
         "No Layer":L.tileLayer(''),
-        "DEPTH": DEPTH,
-      "SWE": SWE,
+        "SNODAS DEPTH": DEPTH,
+      "SWANN SWE": SWE,
      
       }
     },
@@ -153,6 +168,9 @@ function updateSnowLayers(date) {
     if(active_layers_copy[value.name]==true){
       // console.log(value.name);
       value.addTo(map);
+      if(value.name=='Imagery'){
+        legend_ps.addTo(map);
+      }
     }
   }
   for (const [key, value] of Object.entries(SnowMaps[0].layers)) {
@@ -198,7 +216,14 @@ map.on('baselayerchange', function(e) {
     }
   
   active_layers[e.layer.name] = true;
-  console.log(e);
+  // console.log(planet_url);
+  if(e.layer.name=='Imagery'){
+    legend_ps.addTo(map);
+  }
+  else{
+    map.removeControl(legend_ps);
+    legend_ps = legends2(map,planet_url);
+  }
 });
 
 map.on('overlayadd', function(e) {
@@ -263,22 +288,46 @@ $(document).ready(function() {
 
 
 
+function unavailable(date) {
+  // console.log('reac');
+  if(active_layers['DEPTHs']==true){
+    
+    dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+    if ($.inArray(dmy, availDates) != -1) {
+        return [true, ""];
+    } else {
+        return [false, "", "Unavailable"];
+    }
 
+  }
+  else{
+
+    dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+  // console.log(dmy);
+  if ( date.getFullYear() <= 2023 && date.getMonth()<9 || (date.getFullYear()>=currentYear && (date.getMonth()+1)>=currentMonth && date.getDate()>1 )) {
+    return [false, "", "Unavailable"];
+}
+else{
+  return [true, ""];
+}
+  }
+  
+}
 
 // var unavailableDates = ["24-3-2024", "23-3-2024", "22-3-2024"];
-
-    function unavailable(date) {
-        dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
-        // console.log(dmy);
-        if ( date.getFullYear() < 2023) {
-          return [false, "", "Unavailable"];
-      }
-        if ($.inArray(dmy, availDates) != -1) {
-            return [true, ""];
-        } else {
-            return [false, "", "Unavailable"];
-        }
-    }
+//old
+    // function unavailable(date) {
+    //     dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
+    //     // console.log(dmy);
+    //     if ( date.getFullYear() < 2023) {
+    //       return [false, "", "Unavailable"];
+    //   }
+    //     if ($.inArray(dmy, availDates) != -1) {
+    //         return [true, ""];
+    //     } else {
+    //         return [false, "", "Unavailable"];
+    //     }
+    // }
 // Initialize jQuery UI Datepicker widget
 $(function() {
   $("#datepicker").datepicker({
@@ -295,5 +344,6 @@ $(function() {
 
 // legend.addTo(map);
 L.control.scale().addTo(map);
+
 
 

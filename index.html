@@ -24,6 +24,9 @@
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
 	<script src="https://unpkg.com/georaster"></script>
     <script src="https://unpkg.com/georaster-layer-for-leaflet"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+  
 
 	<style>
 		.legend {
@@ -102,6 +105,51 @@
     display: block;
     margin: auto;
   }
+
+  .ui-datepicker {
+      font-size: 0.8rem; /* Decrease font size */
+      border-radius: 0.2rem; /* Decrease border radius */
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Adjust box shadow */
+    }
+    .ui-datepicker-header {
+      background-color: #f8f9fa;
+      color: #333;
+      border-radius: 0.2rem 0.2rem 0 0;
+      border: none;
+    }
+    .ui-datepicker-calendar {
+      border: none;
+      background-color: #fff;
+      border-radius: 0 0 0.2rem 0.2rem;
+    }
+    .ui-datepicker-prev, .ui-datepicker-next {
+      width: 20px; /* Decrease navigation button size */
+      height: 20px;
+    }
+    .ui-datepicker-prev span, .ui-datepicker-next span {
+      margin-top: 2px;
+    }
+    .ui-datepicker-prev span.ui-icon, .ui-datepicker-next span.ui-icon {
+      padding: 6px; /* Adjust padding */
+    }
+    .ui-datepicker-title {
+      border-radius: 0.2rem;
+      background-color: #e9ecef;
+      padding: 0.3rem;
+    }
+    .ui-datepicker-calendar a {
+      font-size: 0.8rem; /* Decrease font size of dates */
+      color: #007bff;
+    }
+    .ui-datepicker-calendar a.ui-state-highlight {
+      background-color: #007bff;
+      color: #fff;
+    }
+    .ui-datepicker-buttonpane {
+      border-top: none;
+      background-color: #e9ecef;
+      border-radius: 0 0 0.2rem 0.2rem;
+    }
 	</style>
 
 	
@@ -117,7 +165,7 @@
     <!-- Image -->
     <img src="ASU-Logo-768x192.jpg" alt="Your Image">
   </div></div>
-<input type="text" id="datepicker" placeholder="Select Date">
+<input type="text" id="datepicker" style="font-size: 0.8rem;" placeholder="Select Date" value="2024-04-01">
 
 <script src="legends.js"></script>
 <script src="layers.js"></script>

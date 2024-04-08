@@ -411,7 +411,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
 
             // process options of ac-large css class - to options.group_maxHeight property
             if (this.options.group_maxHeight) {
-                article.style.maxHeight = this.options.group_maxHeight;
+                article.style.maxHeight = 100;
             }
 
             groupContainer.innerHTML = inputElement + inputLabel;
