@@ -8,7 +8,7 @@ const matches = url_temp.match(datePattern);
 if (matches && matches.length >= 3) {
     const startDate = matches[1]; // Extracted start date
     const endDate = matches[2]; // Extracted end date
-    return startDate + '-' + endDate; 
+    return startDate + ' to ' + endDate; 
 } else {
     return '';
 }
@@ -36,8 +36,8 @@ function getColor(d) {
         containerDiv.style.border = '1px solid #ccc'; // Add border
         containerDiv.style.borderRadius = '8px'; // Make edges rounded
         containerDiv.style.padding = '5px'; // Add padding
-    containerDiv.style.width = '250px'; // Set width to 200 pixels
-    containerDiv.style.height = '60px'; // Set height to 100 pixels
+    containerDiv.style.width = '300px'; // Set width to 200 pixels
+    containerDiv.style.height = '80px'; // Set height to 100 pixels
     
     var img = document.createElement('img');
     if(type=='SWE'){
@@ -69,9 +69,10 @@ function getColor(d) {
         containerDiv.style.backgroundColor = '#f9f9f9'; // Set subtle background color
         containerDiv.style.border = '1px solid #ccc'; // Add border
         containerDiv.style.borderRadius = '8px'; // Make edges rounded
-        containerDiv.style.padding = '5px'; // Add padding
-        containerDiv.style.width = '250px'; // Set width to 50 pixels (80% reduction)
-        containerDiv.style.height = 'auto'; // Set height to auto
+        containerDiv.style.padding = '12px 0px 12px 0px'; // Add padding
+        containerDiv.style.width = '300px'; // Set width to 50 pixels (80% reduction)
+        // containerDiv.style.height = 'auto'; // Set height to auto
+        // containerDiv.style.padding_top = '10px';
         
         var textElement = document.createElement('p'); // Create a paragraph element
         textElement.innerHTML = '<b>Planet Imagery - Biweekly</b><br>' +text +' (Regional)'; // Set the text content with line breaks
@@ -79,8 +80,8 @@ function getColor(d) {
         textElement.style.margin = '0'; // Remove any default margin
         textElement.style.lineHeight = '1.2'; // Set line height
         textElement.style.width = '100%'; // Set width to 100% to fill the container
-        textElement.style.fontFamily = 'Arial, sans-serif'; // Set font family
-        textElement.style.fontSize = '10px'; // Set font size to 10 pixels (80% reduction)
+        textElement.style.fontFamily = 'Ubuntu-Regular, sans-serif'; // Set font family
+        textElement.style.fontSize = '15px'; // Set font size to 10 pixels (80% reduction)
         textElement.style.color = '#333'; // Set font color
         
         containerDiv.appendChild(textElement); // Append the text element to the container div

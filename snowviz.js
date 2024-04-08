@@ -38,8 +38,13 @@ define_snowmaps("2024-04-01");
 
 // Create map instance
 var map = L.map('map', {
-  layers: [streets] // Default basemap layer
+  layers: [streets],
+  zoomControl: false // Default basemap layer
 }).setView([34.0489, -111.0937], 6);
+
+L.control.zoom({
+  position: 'topright'
+}).addTo(map);
 // 34.0489° N, 111.0937° W
 map.createPane('points');
 map.getPane('points').style.zIndex = 10000;
