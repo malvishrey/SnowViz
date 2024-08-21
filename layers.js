@@ -237,8 +237,10 @@ async function define_basemaps(date){
       tms: true,
       attribution: 'Shrey Malvi',
       minNativeZoom:9,
+      opacity:0.6,
+
       // maxZoom: 20,
-      maxNativeZoom: 15,
+      maxNativeZoom: 14,
       // nativeZooms: [2, 20]
     });
     asu_snow.name = 'asu_snow';
