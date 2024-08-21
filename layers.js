@@ -20,13 +20,62 @@ function fetchDatesListP() {
       }
   });
 }
+var ps_daily_map;
+function fetchDatesList_daily() {
+  $.ajax({
+      url: 'ps_daily.json',
+      dataType: 'json',
+      async: false,
+      success: function(data) {
+          ps_date = Object.keys(data);
+          console.log('re');
+          ps_daily_map = {};
+
+            // Populate the map with dates and their corresponding URLs
+            ps_date.forEach(function(date) {
+              ps_daily_map[date] = data[date];
+            });
+      },
+      error: function(xhr, status, error) {
+          console.error('Error loading file:', error);
+      }
+  });
+}
+fetchDatesList_daily();
+// console.log(ps_daily_map);
+
+function fetchDatesList_asu_snow() {
+  $.ajax({
+      url: 'asu_snow_dates.txt',
+      dataType: 'text',
+      async: false,
+      success: function(data) {
+          // Split the data into an array of dates
+          asu_snow_date = data.split('\n').filter(Boolean); // Remove empty elements
+
+          // Print the list of dates
+          // console.log("Dates List:");
+          // availDates.forEach(function(date) {
+          //     console.log(date);
+          // });
+          // console.log('re');
+          // You can now use availDates as needed in your JavaScript code
+      },
+      error: function(xhr, status, error) {
+          console.error('Error loading file:', error);
+      }
+  });
+}
+fetchDatesList_asu_snow();
+console.log('asu_snow',asu_snow_date);
+
 
 // Call the fetchDatesList function on page load
 fetchDatesListP();
 function get_date(referenceDateString){
   
   // const referenceDateString = '2024-04-05';
-console.log('x',availDatesPlanet);
+// console.log('x',availDatesPlanet);
 // Convert date strings to Date objects
 const dates = availDatesPlanet.map(dateStr => new Date(dateStr));
 const referenceDate = new Date(referenceDateString);
@@ -44,8 +93,8 @@ const index = availDatesPlanet.findIndex(dateStr => dateStr === greatestDate.toI
 console.log(availDatesPlanet[index],availDatesPlanet[index-1]);
 return availDatesPlanet[index]+'_'+availDatesPlanet[index-1];
 }
-var planet_url;
-function define_basemaps(date){
+var planet_url,planet_url_d;
+async function define_basemaps(date){
 
     streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       maxZoom: 19,
@@ -58,17 +107,28 @@ function define_basemaps(date){
     if(date==null){
       planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
   }else{
+    try{
     var new_date  = get_date(date);
-
+    // planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
     planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_'+new_date+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
-  }
-  imagery = L.tileLayer(planet_url, {
-        maxZoom: 19,
-        attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
+    imagery = L.tileLayer(planet_url, {
+      maxZoom: 19,
+      attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
     });
     imagery.name = 'Imagery';
     if(!('Imagery' in active_layers))
       active_layers['Imagery'] = false;
+    // console.log('valid bik');
+    }
+    catch (error) {
+      // Handle any errors that occur in the try block
+      imagery.name = 'Imagery';
+      console.error("date not found for ps bi-weekly");
+      
+      active_layers['Imagery'] = false;
+  }
+  }
+  
 
     topographic = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
         maxZoom: 17,
@@ -85,7 +145,55 @@ function define_basemaps(date){
     terrain.name = 'Terrain';
     if(!('Terrain' in active_layers))
       active_layers['Terrain'] = false;
-  
+
+    
+    // const url_to_geotiff_file = "https://storage.googleapis.com/pdd-stac/disasters/hurricane-harvey/0831/20170831_172754_101c_3b_Visual.tif";
+    // var georaster;
+    // // Define the nested async function
+    // async function processGeoraster() {
+    //   try {
+    //     // Await for the asynchronous operation
+    //     georaster = await parseGeoraster(url_to_geotiff_file);
+    //     console.log("georaster:", georaster);
+
+        
+
+        
+    //   } catch (error) {
+    //     console.error("Error loading georaster:", error);
+    //   }
+    // }
+
+    // Call the nested async function
+    // await processGeoraster();
+    // cog = new GeoRasterLayer({
+    //   attribution: "Planet",
+    //   georaster: georaster,
+    //   resolution: 128
+    // });
+    // // console.log(streets);
+    // cog._leaflet_id = 'cogs';
+    // console.log('leaflet id',cog);
+    // // You can perform other tasks here after processGeoraster has completed
+    // cog.name = 'COG';
+    // if (!('COG' in active_layers)) {
+    //   active_layers['COG'] = true;
+    // }
+
+    // console.log("georaster2:");
+    // console.log("Process complete");
+    console.log('date',date);
+    ps_daily_url = ps_daily_map[date];
+    var ps_daily_url  = ps_daily_url+'.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+    ps_daily = L.tileLayer(ps_daily_url, {
+      maxZoom: 19,
+      attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
+    });
+    planet_url_d = date;
+    ps_daily.name = 'PlanetScope';
+    if(!('PlanetScope' in active_layers))
+      active_layers['PlanetScope'] = false;
+    
   }
   
   function define_snowmaps(date){
@@ -122,6 +230,22 @@ function define_basemaps(date){
     DEPTH.name = 'DEPTH';
     if(!('DEPTH' in active_layers))
       active_layers['DEPTH'] = false;
+
+    asu_snow_url = 'data/asu_snow/'+date+'/{z}/{x}/{y}.png';
+    // asu_snow_url = 'data/preds/snow_pred/{z}/{x}/{y}.png';
+    asu_snow = L.tileLayer(asu_snow_url, {
+      tms: true,
+      attribution: 'Shrey Malvi',
+      minNativeZoom:9,
+      // maxZoom: 20,
+      maxNativeZoom: 15,
+      // nativeZooms: [2, 20]
+    });
+    asu_snow.name = 'asu_snow';
+    if(!('asu_snow' in active_layers))
+      active_layers['asu_snow'] = false;
+
+
   }
 
   function addWatershedBoundary(watershedGeoJSONFile,ws) {

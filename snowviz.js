@@ -1,7 +1,7 @@
 
 var active_layers = {};
-var streets,imagery,topographic,terrain;
-var SWE, DEPTH;
+var streets,imagery,topographic,terrain,ps_daily;
+var SWE, DEPTH, asu_snow;
 // var legend;
 
 
@@ -27,12 +27,6 @@ var currentMonth = currentDate.getMonth() + 1; // Adding 1 to get 1-12 format
 // Get the current year (4 digits)
 var currentYear = currentDate.getFullYear();
 
-
-// Create a hashmap for station IDs
-// var stationHashMap = {};
-
-// Parse CSV file
-
 define_basemaps("2024-04-01");
 define_snowmaps("2024-04-01");
 
@@ -40,7 +34,7 @@ define_snowmaps("2024-04-01");
 var map = L.map('map', {
   layers: [streets],
   zoomControl: false // Default basemap layer
-}).setView([34.0489, -111.0937], 6);
+}).setView([34.9133, -111.5589], 11);
 
 L.control.zoom({
   position: 'topright'
@@ -55,7 +49,9 @@ define_overlays();
 // legends();
 var legend_swe = legends(map,'SWE');
 var legend_depth = legends(map,'DEPTH');
-var legend_ps = legends2(map,planet_url);
+var legend_asu_snow = legends(map,'asu_snow');
+var legend_ps = legends2(map,planet_url,'biweekly');
+var legend_ps_daily = legends2(map,planet_url_d,'daily');
 
 
 var baseMaps = [
@@ -64,9 +60,10 @@ var baseMaps = [
     expanded : false  ,
     layers    : {
       "Streets": streets,
-    "Planet Imagery": imagery,
+    "Bi-Weekly Mosaic": imagery,
     "Topographic": topographic,
-    "Terrain": terrain
+    "Terrain": terrain,
+    "PlanetScope": ps_daily
     }
   }							
 ];	
@@ -92,6 +89,7 @@ var SnowMaps = [
         "No Layer":L.tileLayer(''),
         "SNODAS DEPTH": DEPTH,
       "SWANN SWE": SWE,
+      "ASU Snow Product": asu_snow,
      
       }
     },
@@ -109,6 +107,7 @@ var SnowMaps = [
       }
     }									
   ];
+
 var control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
   
   // Function to update the SWE and Depth layers based on the selected date
@@ -123,12 +122,14 @@ function updateSnowLayers(date) {
   // Remove existing layers from SnowMaps array
   map.removeControl(control);
   map.removeControl(legend_ps);
+  map.removeControl(legend_ps_daily);
   
 
   define_basemaps(date);
   define_snowmaps(date);
   define_overlays();
-  legend_ps = legends2(map,planet_url);
+  legend_ps = legends2(map,planet_url,'biweekly');
+  legend_ps_daily = legends2(map,planet_url_d,'daily');
 
   baseMaps = [
     { 
@@ -136,9 +137,10 @@ function updateSnowLayers(date) {
       expanded : false  ,
       layers    : {
         "Streets": streets,
-      "Planet Imagery": imagery,
+      "Bi-Weekly Mosaic": imagery,
       "Topographic": topographic,
-      "Terrain": terrain
+      "Terrain": terrain,
+      "PlanetScope": ps_daily
       }
     }							
   ];	
@@ -151,6 +153,7 @@ function updateSnowLayers(date) {
         "No Layer":L.tileLayer(''),
         "SNODAS DEPTH": DEPTH,
       "SWANN SWE": SWE,
+      "ASU Snow Product": asu_snow,
      
       }
     },
@@ -174,7 +177,12 @@ function updateSnowLayers(date) {
       // console.log(value.name);
       value.addTo(map);
       if(value.name=='Imagery'){
+
         legend_ps.addTo(map);
+      }
+      if(value.name=='PlanetScope'){
+
+        legend_ps_daily.addTo(map);
       }
     }
   }
@@ -188,6 +196,9 @@ function updateSnowLayers(date) {
       if(value.name=='DEPTH'){
         legend_depth.addTo(map);
       }
+      if(value.name=='asu_snow'){
+        legend_asu_snow.addTo(map);
+      }
     }
   }
   for (const [key, value] of Object.entries(SnowMaps[1].layers)) {
@@ -197,20 +208,7 @@ function updateSnowLayers(date) {
     }
   }
   active_layers = active_layers_copy;
-  // for (const [key, value] of Object.entries(baseMaps[1].layers)) {
-  //   if(active_layers[value.name]==true){
-  //     value.addTo(map);
-  //   }
-  // }
-  // streets.addTo(map);
-  // // tsnowLayer.addTo(map);
-  
-  // tsnowLayer.addTo(map);
   control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
-  
-  
-
-
 }
 console.log('av',map);
 map.on('baselayerchange', function(e) {
@@ -221,13 +219,18 @@ map.on('baselayerchange', function(e) {
     }
   
   active_layers[e.layer.name] = true;
-  // console.log(planet_url);
   if(e.layer.name=='Imagery'){
     legend_ps.addTo(map);
   }
+  else if(e.layer.name=='PlanetScope'){
+
+    legend_ps_daily.addTo(map);
+  }
   else{
     map.removeControl(legend_ps);
-    legend_ps = legends2(map,planet_url);
+    map.removeControl(legend_ps_daily);
+    legend_ps = legends2(map,planet_url,'biweekly');
+    legend_ps_daily = legends2(map,planet_url_d,'daily');
   }
 });
 
@@ -239,6 +242,9 @@ map.on('overlayadd', function(e) {
   }
   if(e.layer.name=='DEPTH'){
     legend_depth.addTo(map);
+  }
+  if(e.layer.name=='asu_snow'){
+    legend_asu_snow.addTo(map);
   }
   console.log(active_layers);
 
@@ -255,11 +261,15 @@ map.on('overlayremove', function(e) {
     map.removeControl(legend_depth);
     legend_depth = legends(map,'DEPTH');
   }
+  if(e.layer.name=='asu_snow'){
+    map.removeControl(legend_asu_snow);
+    legend_asu_snow = legends(map,'asu_snow');
+  }
 });
 
 
 var availDates;
-var availDatesPlanet;
+var availDatesPlanet, ps_date, asu_snow_date;
 
 $(document).ready(function() {
     // Function to fetch and process the list of dates
@@ -270,6 +280,7 @@ $(document).ready(function() {
             success: function(data) {
                 // Split the data into an array of dates
                 availDates = data.split('\n').filter(Boolean); // Remove empty elements
+                // console.log(availDates);
 
                 // Print the list of dates
                 // console.log("Dates List:");
@@ -294,8 +305,29 @@ $(document).ready(function() {
 
 
 function unavailable(date) {
+  
   // console.log('reac');
-  if(active_layers['DEPTHs']==true){
+  if(active_layers['asu_snow']==true){
+    const dateObj = new Date(date);
+    const formattedDateStr = dateObj.toISOString().split('T')[0];
+    if ($.inArray(formattedDateStr, asu_snow_date) != -1) {
+        return [true, ""];
+    } else {
+        return [false, "", "Unavailable"];
+    }
+
+  }
+  if(active_layers['PlanetScope']==true){
+    const dateObj = new Date(date);
+    const formattedDateStr = dateObj.toISOString().split('T')[0];
+    if ($.inArray(formattedDateStr, ps_date) != -1) {
+        return [true, ""];
+    } else {
+        return [false, "", "Unavailable"];
+    }
+
+  }
+  if(active_layers['DEPTH']==true){
     
     dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
     if ($.inArray(dmy, availDates) != -1) {

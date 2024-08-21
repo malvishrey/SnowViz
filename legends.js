@@ -42,8 +42,11 @@ function getColor(d) {
     var img = document.createElement('img');
     if(type=='SWE'){
     img.src = '2.png'; // Set the source of your image
-  }else{
+  }else if (type=='DEPTH'){
     img.src = 'ts2.png';
+  }
+  else{
+    img.src= 'ts3.png'
   }
     img.style.display = 'block';
     img.style.margin = 'auto';
@@ -57,10 +60,20 @@ function getColor(d) {
   
   }
 
-  function legends2(map, text) {
+  function legends2(map, text,type1) {
+    console.log('ty',type1);
+    var hstr;
+    if(type1=='biweekly'){
+      console.log('txt',text);
     text = extract(text);
     
+    hstr = '<b>Planet Imagery - Biweekly</b><br>' +text +' (Regional)';
+    }
+    else{
+      hstr = '<b>Planet Imagery - Daily</b><br>' +text;
+    }
     var legend = L.control({position: 'bottomright'});
+
     
     legend.onAdd = function (map) {
         var containerDiv = L.DomUtil.create('div', 'legend-container');
@@ -75,7 +88,7 @@ function getColor(d) {
         // containerDiv.style.padding_top = '10px';
         
         var textElement = document.createElement('p'); // Create a paragraph element
-        textElement.innerHTML = '<b>Planet Imagery - Biweekly</b><br>' +text +' (Regional)'; // Set the text content with line breaks
+        textElement.innerHTML =  hstr;
         textElement.style.textAlign = 'center'; // Set text alignment to center
         textElement.style.margin = '0'; // Remove any default margin
         textElement.style.lineHeight = '1.2'; // Set line height
