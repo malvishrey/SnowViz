@@ -36,7 +36,7 @@ function getColor(d) {
         containerDiv.style.border = '1px solid #ccc'; // Add border
         containerDiv.style.borderRadius = '8px'; // Make edges rounded
         containerDiv.style.padding = '5px'; // Add padding
-    containerDiv.style.width = '300px'; // Set width to 200 pixels
+    containerDiv.style.width = '250px'; // Set width to 200 pixels
     containerDiv.style.height = '80px'; // Set height to 100 pixels
     
     var img = document.createElement('img');
@@ -49,9 +49,11 @@ function getColor(d) {
     img.src= 'ts3.png'
   }
     img.style.display = 'block';
-    img.style.margin = 'auto';
-    img.style.width = '90%'; // Adjust the width of the image as needed
+    // img.style.margin = 'auto';
+    img.style.width = '100%'; // Adjust the width of the image as needed
     img.style.height = '100%'; // Adjust the height of the image as needed
+    img.style.objectFit = 'contain'; // Ensure the image covers the container while preserving aspect ratio
+
     
     containerDiv.appendChild(img); // Append the image to the container div
     return containerDiv;

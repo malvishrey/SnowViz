@@ -183,11 +183,21 @@ async function define_basemaps(date){
     // console.log("georaster2:");
     // console.log("Process complete");
     console.log('date',date);
-    ps_daily_url = ps_daily_map[date];
-    var ps_daily_url  = ps_daily_url+'.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+    // ps_daily_url = ps_daily_map[date];
+    // var ps_daily_url  = ps_daily_url+'.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+    date = date.replace(/-/g, '');
+    ps_daily_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/planet_daily/'+date+'/{z}/{x}/{y}.png';
+    // ps_daily = L.tileLayer(ps_daily_url, {
+    //   minNativeZoom: 8,
+    //   maxNativeZoom: 15,
+    //   attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
+    // });
     ps_daily = L.tileLayer(ps_daily_url, {
-      maxZoom: 19,
-      attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
+      tms: true,
+      attribution: 'PlanetScope',
+      minNativeZoom: 9,
+      maxNativeZoom: 15,
+      // nativeZooms: [2, 7]
     });
     planet_url_d = date;
     ps_daily.name = 'PlanetScope';
@@ -207,8 +217,8 @@ async function define_basemaps(date){
       date = date.replace(/-/g, '');
       // date = '2021'+date.slice(4);
       // console.log()    
-      swe_url = 'data/SWANN/SWANN_SWE_'+date+'/{z}/{x}/{y}.png';
-      depth_url = 'data/SNODAS/SNODAS_DEPTH_'+'2021'+date.slice(4)+'/{z}/{x}/{y}.png';
+      swe_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/SWANN/SWANN_SWE_' + date + '/{z}/{x}/{y}.png';
+      depth_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/SNODAS/SNODAS_DEPTH_'+'2021'+date.slice(4)+'/{z}/{x}/{y}.png';
     }
     SWE = L.tileLayer(swe_url, {
       tms: true,
@@ -231,7 +241,9 @@ async function define_basemaps(date){
     if(!('DEPTH' in active_layers))
       active_layers['DEPTH'] = false;
 
-    asu_snow_url = 'data/asu_snow/'+date+'/{z}/{x}/{y}.png';
+    // asu_snow_url = 'data/asu_snow/'+date+'/{z}/{x}/{y}.png';
+    asu_snow_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/asu_snow/' + date + '/{z}/{x}/{y}.png';
+
     // asu_snow_url = 'data/preds/snow_pred/{z}/{x}/{y}.png';
     asu_snow = L.tileLayer(asu_snow_url, {
       tms: true,
@@ -240,7 +252,7 @@ async function define_basemaps(date){
       opacity:0.6,
 
       // maxZoom: 20,
-      maxNativeZoom: 14,
+      maxNativeZoom: 15,
       // nativeZooms: [2, 20]
     });
     asu_snow.name = 'asu_snow';
@@ -264,7 +276,7 @@ async function define_basemaps(date){
             $(data.features).each(function(key, data) {
                 watershed_boundary.addData(data);
                 watershed_boundary.setStyle({
-                    "fillOpacity": 0.1
+                    "fillOpacity": 0.0
                 });
             });
         }
@@ -371,5 +383,13 @@ async function define_basemaps(date){
     WB_HU8.name = 'WB_HU8';
     if(!('WB_HU8' in active_layers))
         active_layers['WB_HU8'] = false;
+
+    bvc_region = addWatershedBoundary('data/huc10_bvc.geojson','BVC');
+    bvc_region.name = 'BVC';
+  //   bvc_region.setStyle({
+  //     "fillOpacity": 0.0
+  // });
+    // if(!('BVC' in active_layers))
+    //     active_layers['BVC'] = false;
 
 }

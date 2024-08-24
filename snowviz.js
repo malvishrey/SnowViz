@@ -2,6 +2,7 @@
 var active_layers = {};
 var streets,imagery,topographic,terrain,ps_daily;
 var SWE, DEPTH, asu_snow;
+var ps_daily_url;
 // var legend;
 
 
@@ -15,7 +16,7 @@ var circle;
 var SNOTELCustomID = 'SNOTEL';
 
 var SNOTEL;
-var WB_HU2,WB_HU6,WB_HU4,WB_HU8;
+var WB_HU2,WB_HU6,WB_HU4,WB_HU8,bvc_region;
 var currentDate = new Date();
 
 // Get the current day (0-6, where 0 represents Sunday)
@@ -127,7 +128,7 @@ function updateSnowLayers(date) {
 
   define_basemaps(date);
   define_snowmaps(date);
-  define_overlays();
+  // define_overlays();
   legend_ps = legends2(map,planet_url,'biweekly');
   legend_ps_daily = legends2(map,planet_url_d,'daily');
 
@@ -181,7 +182,7 @@ function updateSnowLayers(date) {
         legend_ps.addTo(map);
       }
       if(value.name=='PlanetScope'){
-
+        bvc_region.addTo(map);
         legend_ps_daily.addTo(map);
       }
     }
@@ -221,16 +222,21 @@ map.on('baselayerchange', function(e) {
   active_layers[e.layer.name] = true;
   if(e.layer.name=='Imagery'){
     legend_ps.addTo(map);
+    map.removeControl(legend_ps_daily);
+    map.removeControl(bvc_region);
   }
   else if(e.layer.name=='PlanetScope'){
-
+    bvc_region.addTo(map);
     legend_ps_daily.addTo(map);
+    map.removeControl(legend_ps);
   }
   else{
     map.removeControl(legend_ps);
     map.removeControl(legend_ps_daily);
+    map.removeControl(bvc_region);
     legend_ps = legends2(map,planet_url,'biweekly');
     legend_ps_daily = legends2(map,planet_url_d,'daily');
+    
   }
 });
 
@@ -253,6 +259,7 @@ map.on('overlayadd', function(e) {
 map.on('overlayremove', function(e) {
   console.log('remove',e);
   active_layers[e.layer.name] = false;
+
   if(e.layer.name=='SWE'){
     map.removeControl(legend_swe);
     legend_swe = legends(map,'SWE');
@@ -375,8 +382,13 @@ $(function() {
     onSelect: function(dateText) {
       // Call the function to update SWE and Depth layers based on the selected date
       updateSnowLayers(dateText);
+      setTimeout(() => {
+        $(this).datepicker("show");
+      }, 0); 
     }
   });
+  
+  
 });
 
 // legend.addTo(map);
