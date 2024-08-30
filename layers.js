@@ -93,16 +93,14 @@ const index = availDatesPlanet.findIndex(dateStr => dateStr === greatestDate.toI
 console.log(availDatesPlanet[index],availDatesPlanet[index-1]);
 return availDatesPlanet[index]+'_'+availDatesPlanet[index-1];
 }
+
 var planet_url,planet_url_d;
 async function define_basemaps(date){
 
-    streets = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-    });
-    streets.name = 'Streets';
-    if(!('Streets' in active_layers))
-      active_layers['Streets'] = true;
+    dft =L.tileLayer('');
+    dft.name = 'dft';
+    if(!('dft' in active_layers))
+      active_layers['dft'] = true;
     
     if(date==null){
       planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
@@ -130,58 +128,9 @@ async function define_basemaps(date){
   }
   
 
-    topographic = L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
-        maxZoom: 17,
-        attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors'
-    });
-    topographic.name = 'Topographic';
-    if(!('Topographic' in active_layers))
-      active_layers['Topographic'] = false;
+
+
   
-    terrain = L.tileLayer('https://server.arcgisonline.com/arcgis/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}', {
-        maxZoom: 22,
-        attribution: 'Imagery &copy; <a href="https://esri.com">ESRI</a> contributors'
-    });
-    terrain.name = 'Terrain';
-    if(!('Terrain' in active_layers))
-      active_layers['Terrain'] = false;
-
-    
-    // const url_to_geotiff_file = "https://storage.googleapis.com/pdd-stac/disasters/hurricane-harvey/0831/20170831_172754_101c_3b_Visual.tif";
-    // var georaster;
-    // // Define the nested async function
-    // async function processGeoraster() {
-    //   try {
-    //     // Await for the asynchronous operation
-    //     georaster = await parseGeoraster(url_to_geotiff_file);
-    //     console.log("georaster:", georaster);
-
-        
-
-        
-    //   } catch (error) {
-    //     console.error("Error loading georaster:", error);
-    //   }
-    // }
-
-    // Call the nested async function
-    // await processGeoraster();
-    // cog = new GeoRasterLayer({
-    //   attribution: "Planet",
-    //   georaster: georaster,
-    //   resolution: 128
-    // });
-    // // console.log(streets);
-    // cog._leaflet_id = 'cogs';
-    // console.log('leaflet id',cog);
-    // // You can perform other tasks here after processGeoraster has completed
-    // cog.name = 'COG';
-    // if (!('COG' in active_layers)) {
-    //   active_layers['COG'] = true;
-    // }
-
-    // console.log("georaster2:");
-    // console.log("Process complete");
     console.log('date',date);
     // ps_daily_url = ps_daily_map[date];
     // var ps_daily_url  = ps_daily_url+'.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
@@ -262,6 +211,90 @@ async function define_basemaps(date){
 
   }
 
+  function displayGeoJsonText(filename) {
+    // var map = L.map('map').setView([51.505, -0.09], 13);
+
+    // L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    //     attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    // }).addTo(map);
+
+    var geojsonLayer = new L.geoJson();
+
+    $.ajax({
+        url: filename,
+        beforeSend: function(xhr) {
+            if (xhr.overrideMimeType) {
+                xhr.overrideMimeType("application/json");
+            }
+        },
+        dataType: "json",
+        success: function(data) {
+            var markers = [];
+
+            $(data.features).each(function(key, feature) {
+                var layer = L.geoJson(feature);
+                var coords;
+
+                if (layer.getLayers()[0] instanceof L.Marker) {
+                    coords = layer.getLayers()[0].getLatLng();
+                } else if (layer.getLayers()[0] instanceof L.Polygon || layer.getLayers()[0] instanceof L.Polyline) {
+                    coords = layer.getLayers()[0].getBounds().getCenter();
+                } else {
+                    coords = layer.getLayers()[0].getLatLng();
+                }
+
+                var marker = L.marker(coords, {
+                    icon: L.divIcon({
+                        className: 'geojson-label',
+                        html: feature.properties.NAME,
+                        iconSize: [100, 40] // Default size, will be overridden dynamically
+                    })
+                }).addTo(map);
+
+                markers.push(marker);
+            });
+
+            // Function to handle zoom changes
+            function updateLabelFontSize() {
+                var zoom = map.getZoom();
+                var fontSize = Math.max(0, zoom * 0.2) + 'px'; // Adjust font size calculation as needed
+                markers.forEach(function(marker) {
+                    var icon = marker.getIcon();
+                    icon.options.html = '<div class="geojson-label" style="font-size: ' + fontSize + ';">' + marker.options.icon.options.html + '</div>';
+                    marker.setIcon(icon);
+                });
+            }
+
+            map.on('zoomend', updateLabelFontSize);
+            updateLabelFontSize(); // Initial check
+        }
+    });
+}
+
+function aboundary(watershedGeoJSONFile,ws) {
+  var watershed_boundary = new L.geoJson();
+  $.ajax({
+      url: watershedGeoJSONFile,
+      beforeSend: function(xhr) {
+          if (xhr.overrideMimeType) {
+              xhr.overrideMimeType("application/json");
+          }
+      },
+      dataType: "json",
+      success: function(data) {
+          $(data.features).each(function(key, data) {
+              watershed_boundary.addData(data);
+              watershed_boundary.setStyle({
+                  "fillOpacity": 0.0,
+                  "weight":0.5,
+                  "color":"white"
+              });
+          });
+      }
+  });
+  return watershed_boundary;
+} 
+// var aboundary
   function addWatershedBoundary(watershedGeoJSONFile,ws) {
     var watershed_boundary = new L.geoJson();
     $.ajax({
@@ -386,6 +419,11 @@ async function define_basemaps(date){
 
     bvc_region = addWatershedBoundary('data/huc10_bvc.geojson','BVC');
     bvc_region.name = 'BVC';
+
+
+//     var arizonaCitiesLayer = addArizonaCity('cities_points_8858038672257363236.geojson', 'arizonaCityLayer',map);
+// arizonaCitiesLayer.addTo(map);  // Add the layer to the Leaflet map instance
+
   //   bvc_region.setStyle({
   //     "fillOpacity": 0.0
   // });

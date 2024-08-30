@@ -170,3 +170,13 @@ div[id^="leaflet-control-accordion-layers"] > label:hover {
 	background: #e0e3ec url(images/bgnoise_lg.jpg) repeat top left;
 	border-radius: 5px;
 }
+.blurred-tile {
+	filter: blur(0px); /* Adjust the blur amount as needed */
+	
+  }
+  
+  .geojson-label {
+	color: white;
+	font-weight: bold;
+	text-align: center;
+}

@@ -1,8 +1,9 @@
 
 var active_layers = {};
-var streets,imagery,topographic,terrain,ps_daily;
+var dft,imagery,topographic,terrain,ps_daily;
 var SWE, DEPTH, asu_snow;
 var ps_daily_url;
+// var cogs;
 // var legend;
 
 
@@ -30,12 +31,19 @@ var currentYear = currentDate.getFullYear();
 
 define_basemaps("2024-04-01");
 define_snowmaps("2024-04-01");
+var base_layer;
+base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_2024_07_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8', {
+  maxZoom: 19,
+  attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+  className: 'blurred-tile' // Add the CSS class here
 
+});
 // Create map instance
 var map = L.map('map', {
-  layers: [streets],
+  layers: [base_layer],
   zoomControl: false // Default basemap layer
 }).setView([34.9133, -111.5589], 11);
+
 
 L.control.zoom({
   position: 'topright'
@@ -60,11 +68,11 @@ var baseMaps = [
     groupName : "Base Maps",
     expanded : false  ,
     layers    : {
-      "Streets": streets,
+      "Default": dft,
     "Bi-Weekly Mosaic": imagery,
-    "Topographic": topographic,
-    "Terrain": terrain,
-    "PlanetScope": ps_daily
+    // "cogs":cogs,
+    "PlanetScope": ps_daily,
+    
     }
   }							
 ];	
@@ -108,17 +116,30 @@ var SnowMaps = [
       }
     }									
   ];
-
+var tileLayerContainer;
 var control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
-  
+var aboundary = aboundary('arizona.geojson','arizona');
+aboundary.addTo(map);
+// displayGeoJsonText('cities_points_8858038672257363236.geojson');
   // Function to update the SWE and Depth layers based on the selected date
 function updateSnowLayers(date) {
+  console.log('map',map);
   var active_layers_copy = {...active_layers};
   map.eachLayer(function(layer_1) {
     
     map.removeLayer(layer_1);
     
 });
+
+base_layer.addTo(map);
+aboundary.addTo(map);
+
+tileLayerContainer = document.querySelector('.blurred-tile');
+console.log(document.querySelector('.blurred-tile'));
+if (tileLayerContainer) {
+  // console.log('xw');
+  tileLayerContainer.style.filter = `blur(0px)`;
+}
 // console.log('a',legend);
   // Remove existing layers from SnowMaps array
   map.removeControl(control);
@@ -126,22 +147,23 @@ function updateSnowLayers(date) {
   map.removeControl(legend_ps_daily);
   
 
-  define_basemaps(date);
+  update_basemaps(date);
   define_snowmaps(date);
   // define_overlays();
   legend_ps = legends2(map,planet_url,'biweekly');
   legend_ps_daily = legends2(map,planet_url_d,'daily');
+  
 
   baseMaps = [
     { 
       groupName : "Base Maps",
       expanded : false  ,
       layers    : {
-        "Streets": streets,
+        "Default": dft,
       "Bi-Weekly Mosaic": imagery,
-      "Topographic": topographic,
-      "Terrain": terrain,
-      "PlanetScope": ps_daily
+      // "cogs":cogs,
+      "PlanetScope": ps_daily,
+   
       }
     }							
   ];	
@@ -175,13 +197,16 @@ function updateSnowLayers(date) {
   ];	
   for (const [key, value] of Object.entries(baseMaps[0].layers)) {
     if(active_layers_copy[value.name]==true){
-      // console.log(value.name);
-      value.addTo(map);
-      if(value.name=='Imagery'){
+    value.addTo(map);  
+    if(value.name=='Imagery'){
 
         legend_ps.addTo(map);
       }
       if(value.name=='PlanetScope'){
+        if (tileLayerContainer) {
+          // console.log('xw');
+          tileLayerContainer.style.filter = `blur(2px)`;
+        }
         bvc_region.addTo(map);
         legend_ps_daily.addTo(map);
       }
@@ -208,8 +233,11 @@ function updateSnowLayers(date) {
       value.addTo(map);
     }
   }
+  
   active_layers = active_layers_copy;
   control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
+  
+
 }
 console.log('av',map);
 map.on('baselayerchange', function(e) {
