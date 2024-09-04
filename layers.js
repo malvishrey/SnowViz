@@ -46,27 +46,29 @@ function generateBiweeklyEndDates() {
 availDatesPlanet = generateBiweeklyEndDates();
 console.log(availDatesPlanet);
 var ps_daily_map;
-function fetchDatesList_daily() {
+function fetchDatesList_ps_daily() {
   $.ajax({
-      url: 'ps_daily.json',
-      dataType: 'json',
+      url: 'ps_daily.txt',
+      dataType: 'text',
       async: false,
       success: function(data) {
-          ps_date = Object.keys(data);
-          console.log('re');
-          ps_daily_map = {};
+          // Split the data into an array of dates
+          ps_date = data.split('\n').filter(Boolean); // Remove empty elements
 
-            // Populate the map with dates and their corresponding URLs
-            ps_date.forEach(function(date) {
-              ps_daily_map[date] = data[date];
-            });
+          // Print the list of dates
+          // console.log("Dates List:");
+          // availDates.forEach(function(date) {
+          //     console.log(date);
+          // });
+          // console.log('re');
+          // You can now use availDates as needed in your JavaScript code
       },
       error: function(xhr, status, error) {
           console.error('Error loading file:', error);
       }
   });
 }
-fetchDatesList_daily();
+fetchDatesList_ps_daily();
 // console.log(ps_daily_map);
 
 function fetchDatesList_asu_snow() {
@@ -92,7 +94,7 @@ function fetchDatesList_asu_snow() {
   });
 }
 fetchDatesList_asu_snow();
-console.log('asu_snow',asu_snow_date);
+// console.log('asu_snow',asu_snow_date);
 
 // Call the fetchDatesList function on page load
 // fetchDatesListP();
