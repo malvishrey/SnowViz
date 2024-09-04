@@ -162,7 +162,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
                 L.DomEvent
                     //.on(container, 'mouseover', this._expand, this)
                     //.on(container, 'mouseout', this._collapse, this);
-                    .on(container, 'click', this._expand, this);
+                    .on(container, 'click', this._expand, this)
 
             }
             var link = this._layersLink = L.DomUtil.create('a', className + '-toggle', container);
@@ -411,7 +411,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
 
             // process options of ac-large css class - to options.group_maxHeight property
             if (this.options.group_maxHeight) {
-                article.style.maxHeight = 100;
+                article.style.maxHeight = this.options.group_maxHeight;
             }
 
             groupContainer.innerHTML = inputElement + inputLabel;
@@ -475,7 +475,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
     _expand: function() {
         L.DomUtil.addClass(this._container, 'leaflet-control-layers-expanded');
         if (this._map != null) {
-            // this._map.scrollWheelZoom.disable();
+            this._map.scrollWheelZoom.disable();
             // this._map.dragging.disable();
             this._map.eachLayer(function(layer) {
                 if (typeof layer.closePopup == 'function') {
@@ -501,10 +501,10 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
         //     };
         // }
         this._container.className = this._container.className.replace(' leaflet-control-layers-expanded', '');
-        // if (this._map != null) {
-        //     this._map.scrollWheelZoom.enable();
-        //     this._map.dragging.enable();
-        // }
+        if (this._map != null) {
+            this._map.scrollWheelZoom.enable();
+            // this._map.dragging.enable();
+        }
     }
 });
 

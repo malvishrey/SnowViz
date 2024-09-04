@@ -1,25 +1,50 @@
-function fetchDatesListP() {
-  $.ajax({
-      url: 'dates_list_planet.txt',
-      dataType: 'text',
-      async: false,
-      success: function(data) {
-          // Split the data into an array of dates
-          availDatesPlanet = data.split('\n').filter(Boolean); // Remove empty elements
-
-          // Print the list of dates
-          // console.log("Dates List:");
-          // availDates.forEach(function(date) {
-          //     console.log(date);
-          // });
-          console.log('re');
-          // You can now use availDates as needed in your JavaScript code
-      },
-      error: function(xhr, status, error) {
-          console.error('Error loading file:', error);
-      }
-  });
+function formatDateShort(date) {
+  const options = { year: 'numeric', month: 'short', day: 'numeric' };
+  return date.toLocaleDateString('en-US', options);
 }
+function formatDateRange(startDateStr, endDateStr) {
+  // Convert string inputs to Date objects
+  const startDate = new Date(startDateStr+ 'T00:00:00-07:00');
+  const endDate = endDateStr ? new Date(endDateStr+ 'T00:00:00-07:00') : null;
+
+  if (endDate) {
+      // Format both start and end dates and combine them into a range
+      const startStr = formatDateShort(startDate);
+      const endStr = formatDateShort(endDate);
+      return `${startStr} to ${endStr}`;
+  } else {
+      // Format only the start date
+      return formatDateShort(startDate);
+  }
+}
+
+function generateBiweeklyEndDates() {
+  const startDate = new Date('2022-12-26'); // Initial start date
+  const currentDate = new Date();
+  const startDates = [];
+
+  let date = new Date(startDate);
+
+  while (date <= currentDate) {
+      // Add the start date to the list
+      startDates.push(date.toISOString().split('T')[0]);
+
+      // Move to the next biweekly period
+      date.setDate(date.getDate() + 14); // Increment by 14 days
+  }
+  startDates.reverse();
+
+  // Print all the start dates
+  console.log('Biweekly Start Dates:');
+  startDates.forEach(date => console.log(date));
+  
+
+  return startDates;
+}
+
+// Call the function
+availDatesPlanet = generateBiweeklyEndDates();
+console.log(availDatesPlanet);
 var ps_daily_map;
 function fetchDatesList_daily() {
   $.ajax({
@@ -69,9 +94,8 @@ function fetchDatesList_asu_snow() {
 fetchDatesList_asu_snow();
 console.log('asu_snow',asu_snow_date);
 
-
 // Call the fetchDatesList function on page load
-fetchDatesListP();
+// fetchDatesListP();
 function get_date(referenceDateString){
   
   // const referenceDateString = '2024-04-05';
@@ -87,17 +111,24 @@ const pastDates = dates.filter(date => date < referenceDate);
 let greatestDate = pastDates.reduce((prev, curr) => {
     return prev > curr ? prev : curr;
 });
-const index = availDatesPlanet.findIndex(dateStr => dateStr === greatestDate.toISOString().split('T')[0]);
 
+var index = availDatesPlanet.findIndex(dateStr => dateStr === greatestDate.toISOString().split('T')[0]);
+
+if(index==0){
+  index = 1;
+}
 // Get the index of the greatest date in the original array
 console.log(availDatesPlanet[index],availDatesPlanet[index-1]);
 return availDatesPlanet[index]+'_'+availDatesPlanet[index-1];
 }
 
-var planet_url,planet_url_d;
+var biweekly_label,daily_label;
+var planet_url;
+biweekly_label = 'Not found';
+daily_label = 'Not found';
 async function define_basemaps(date){
 
-    dft =L.tileLayer('');
+  dft = L.tileLayer('');
     dft.name = 'dft';
     if(!('dft' in active_layers))
       active_layers['dft'] = true;
@@ -107,8 +138,10 @@ async function define_basemaps(date){
   }else{
     try{
     var new_date  = get_date(date);
+    const [startDateStr, endDateStr] = new_date.split('_');
     // planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
     planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_'+new_date+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+    biweekly_label = formatDateRange(startDateStr,endDateStr);
     imagery = L.tileLayer(planet_url, {
       maxZoom: 19,
       attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
@@ -134,8 +167,11 @@ async function define_basemaps(date){
     console.log('date',date);
     // ps_daily_url = ps_daily_map[date];
     // var ps_daily_url  = ps_daily_url+'.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+    daily_label = formatDateRange(date);
     date = date.replace(/-/g, '');
     ps_daily_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/planet_daily/'+date+'/{z}/{x}/{y}.png';
+    // ps_daily_url = '/Users/kakashi/Desktop/PlanetViz/svr_tile_test/{z}/{x}/{y}.png';
+
     // ps_daily = L.tileLayer(ps_daily_url, {
     //   minNativeZoom: 8,
     //   maxNativeZoom: 15,
@@ -144,11 +180,10 @@ async function define_basemaps(date){
     ps_daily = L.tileLayer(ps_daily_url, {
       tms: true,
       attribution: 'PlanetScope',
-      minNativeZoom: 9,
-      maxNativeZoom: 15,
+      minNativeZoom: 0,
+      maxNativeZoom: 23,
       // nativeZooms: [2, 7]
     });
-    planet_url_d = date;
     ps_daily.name = 'PlanetScope';
     if(!('PlanetScope' in active_layers))
       active_layers['PlanetScope'] = false;
@@ -197,11 +232,11 @@ async function define_basemaps(date){
     asu_snow = L.tileLayer(asu_snow_url, {
       tms: true,
       attribution: 'Shrey Malvi',
-      minNativeZoom:9,
+      minNativeZoom:0,
       opacity:0.6,
 
       // maxZoom: 20,
-      maxNativeZoom: 15,
+      maxNativeZoom: 23,
       // nativeZooms: [2, 20]
     });
     asu_snow.name = 'asu_snow';
@@ -286,7 +321,8 @@ function aboundary(watershedGeoJSONFile,ws) {
               watershed_boundary.addData(data);
               watershed_boundary.setStyle({
                   "fillOpacity": 0.0,
-                  "weight":0.5,
+                  "weight":1,
+                  
                   "color":"white"
               });
           });
@@ -420,6 +456,20 @@ function aboundary(watershedGeoJSONFile,ws) {
     bvc_region = addWatershedBoundary('data/huc10_bvc.geojson','BVC');
     bvc_region.name = 'BVC';
 
+    roads = L.tileLayer('https://mt{s}.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
+      // tms: true,
+      attribution: 'Google',
+      minNativeZoom: 0,
+      maxNativeZoom: 23,
+      subdomains: '123',
+      // hq: L.Browser.retina,
+  
+      // hq: L.Browser.retina,
+      // nativeZooms: [2, 7]
+    });
+    roads.name = 'roads';
+    if(!('roads' in active_layers))
+        active_layers['roads'] = true;
 
 //     var arizonaCitiesLayer = addArizonaCity('cities_points_8858038672257363236.geojson', 'arizonaCityLayer',map);
 // arizonaCitiesLayer.addTo(map);  // Add the layer to the Leaflet map instance

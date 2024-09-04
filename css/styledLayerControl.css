@@ -180,3 +180,6 @@ div[id^="leaflet-control-accordion-layers"] > label:hover {
 	font-weight: bold;
 	text-align: center;
 }
+.leaflet-control-layers.leaflet-control {
+    margin-top: 200px;
+}

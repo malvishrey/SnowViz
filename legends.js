@@ -63,16 +63,19 @@ function getColor(d) {
   }
 
   function legends2(map, text,type1) {
-    console.log('ty',type1);
+    console.log('ty',text);
     var hstr;
     if(type1=='biweekly'){
-      console.log('txt',text);
-    text = extract(text);
+    //   console.log('txt',text);
+    // text = extract(text);
     
-    hstr = '<b>Planet Imagery - Biweekly</b><br>' +text +' (Regional)';
+    hstr = '<b>PlanetScope Visual Biweekly</b><br>' +text;
+    }
+    else if(type1=='daily'){
+      hstr = '<b>PS Daily Scene</b><br>' +text;
     }
     else{
-      hstr = '<b>Planet Imagery - Daily</b><br>' +text;
+      hstr = '<b>PS Global Monthly</b><br>' +text;
     }
     var legend = L.control({position: 'bottomright'});
 

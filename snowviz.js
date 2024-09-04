@@ -15,6 +15,7 @@ var circle;
 // var olayers = {};
 
 var SNOTELCustomID = 'SNOTEL';
+var roads;
 
 var SNOTEL;
 var WB_HU2,WB_HU6,WB_HU4,WB_HU8,bvc_region;
@@ -29,11 +30,13 @@ var currentMonth = currentDate.getMonth() + 1; // Adding 1 to get 1-12 format
 // Get the current year (4 digits)
 var currentYear = currentDate.getFullYear();
 
-define_basemaps("2024-04-01");
-define_snowmaps("2024-04-01");
+define_basemaps(new Date().toISOString().split('T')[0]);
+define_snowmaps(new Date().toISOString().split('T')[0]);
 var base_layer;
-base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_2024_07_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8', {
-  maxZoom: 19,
+
+base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_'+currentYear+'_'+(currentDate.getMonth()).toString().padStart(2, '0')+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8', {
+  minNativeZoom: 0,
+  maxNativeZoom: 23,
   attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
   className: 'blurred-tile' // Add the CSS class here
 
@@ -41,8 +44,10 @@ base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/glob
 // Create map instance
 var map = L.map('map', {
   layers: [base_layer],
-  zoomControl: false // Default basemap layer
-}).setView([34.9133, -111.5589], 11);
+  zoomControl: false, // Default basemap layer
+  maxZoom: 15               // Restrict maximum zoom level to 18
+
+}).setView([34.9133, -111.5589], 8);
 
 
 L.control.zoom({
@@ -54,13 +59,21 @@ map.getPane('points').style.zIndex = 10000;
 map.createPane('bubbles');
 map.getPane('bubbles').style.zIndex = 20000;
 define_overlays();
+roads.addTo(map);
 
 // legends();
 var legend_swe = legends(map,'SWE');
 var legend_depth = legends(map,'DEPTH');
 var legend_asu_snow = legends(map,'asu_snow');
-var legend_ps = legends2(map,planet_url,'biweekly');
-var legend_ps_daily = legends2(map,planet_url_d,'daily');
+var legend_ps = legends2(map,biweekly_label,'biweekly');
+var legend_ps_daily = legends2(map,daily_label,'daily');
+
+const monthName = (monthNumber) => new Date(currentYear, monthNumber - 1).toLocaleString('en-US', { month: 'long' });
+const monthNameFor = monthName(currentMonth); // Output: "Aug"
+console.log(monthNameFor);
+var base_layer_legend =legends2(map,monthNameFor+' '+currentYear,'monthly');
+base_layer_legend.addTo(map);
+
 
 
 var baseMaps = [
@@ -68,7 +81,7 @@ var baseMaps = [
     groupName : "Base Maps",
     expanded : false  ,
     layers    : {
-      "Default": dft,
+      "Dynamic": dft,
     "Bi-Weekly Mosaic": imagery,
     // "cogs":cogs,
     "PlanetScope": ps_daily,
@@ -112,13 +125,14 @@ var SnowMaps = [
         "WB_HU4":WB_HU4,
         "WB_HU6":WB_HU6,
         "WB_HU8":WB_HU8,
+        "Roads and Borders": roads,
         
       }
     }									
   ];
 var tileLayerContainer;
 var control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
-var aboundary = aboundary('arizona.geojson','arizona');
+var aboundary = aboundary('az_county.geojson','arizona');
 aboundary.addTo(map);
 // displayGeoJsonText('cities_points_8858038672257363236.geojson');
   // Function to update the SWE and Depth layers based on the selected date
@@ -145,13 +159,15 @@ if (tileLayerContainer) {
   map.removeControl(control);
   map.removeControl(legend_ps);
   map.removeControl(legend_ps_daily);
+  map.removeControl(base_layer_legend);
+  base_layer_legend =legends2(map,monthNameFor+' '+currentYear,'monthly');
   
 
   update_basemaps(date);
   define_snowmaps(date);
   // define_overlays();
-  legend_ps = legends2(map,planet_url,'biweekly');
-  legend_ps_daily = legends2(map,planet_url_d,'daily');
+  legend_ps = legends2(map,biweekly_label,'biweekly');
+  legend_ps_daily = legends2(map,daily_label,'daily');
   
 
   baseMaps = [
@@ -159,7 +175,7 @@ if (tileLayerContainer) {
       groupName : "Base Maps",
       expanded : false  ,
       layers    : {
-        "Default": dft,
+        "Dynamic": dft,
       "Bi-Weekly Mosaic": imagery,
       // "cogs":cogs,
       "PlanetScope": ps_daily,
@@ -191,6 +207,7 @@ if (tileLayerContainer) {
         "WB_HU4":WB_HU4,
         "WB_HU6":WB_HU6,
         "WB_HU8":WB_HU8,
+        "Roads and Borders": roads,
         
       }
     }									
@@ -228,8 +245,9 @@ if (tileLayerContainer) {
     }
   }
   for (const [key, value] of Object.entries(SnowMaps[1].layers)) {
+    console.log(key,value);
     if(active_layers_copy[value.name]==true){
-      // console.log('xreac',value);
+      console.log('xreac',value);
       value.addTo(map);
     }
   }
@@ -252,18 +270,33 @@ map.on('baselayerchange', function(e) {
     legend_ps.addTo(map);
     map.removeControl(legend_ps_daily);
     map.removeControl(bvc_region);
+    map.removeControl(base_layer_legend);
+    if (tileLayerContainer) {
+      // console.log('xw');
+      tileLayerContainer.style.filter = `blur(0px)`;
+    }
   }
   else if(e.layer.name=='PlanetScope'){
     bvc_region.addTo(map);
     legend_ps_daily.addTo(map);
     map.removeControl(legend_ps);
+    map.removeControl(base_layer_legend);
+    if (tileLayerContainer) {
+      // console.log('xw');
+      tileLayerContainer.style.filter = `blur(2px)`;
+    }
   }
   else{
     map.removeControl(legend_ps);
     map.removeControl(legend_ps_daily);
     map.removeControl(bvc_region);
-    legend_ps = legends2(map,planet_url,'biweekly');
-    legend_ps_daily = legends2(map,planet_url_d,'daily');
+    base_layer_legend.addTo(map);
+    legend_ps = legends2(map,biweekly_label,'biweekly');
+    legend_ps_daily = legends2(map,daily_label,'daily');
+    if (tileLayerContainer) {
+      // console.log('xw');
+      tileLayerContainer.style.filter = `blur(0px)`;
+    }
     
   }
 });
@@ -376,7 +409,7 @@ function unavailable(date) {
 
     dmy = date.getDate() + "-" + (date.getMonth() + 1) + "-" + date.getFullYear();
   // console.log(dmy);
-  if ( date.getFullYear() <= 2023 && date.getMonth()<9 || (date.getFullYear()>=currentYear && (date.getMonth()+1)>=currentMonth && date.getDate()>1 )) {
+  if ( date.getFullYear() < 2023 ) {
     return [false, "", "Unavailable"];
 }
 else{
@@ -402,10 +435,12 @@ else{
     // }
 // Initialize jQuery UI Datepicker widget
 $(function() {
+  
   $("#datepicker").datepicker({
     dateFormat: 'yy-mm-dd',
     changeMonth: true,
       changeYear: true,
+      maxDate:new Date().toISOString().split('T')[0],
     beforeShowDay: unavailable,
     onSelect: function(dateText) {
       // Call the function to update SWE and Depth layers based on the selected date
