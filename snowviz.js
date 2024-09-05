@@ -37,7 +37,7 @@ var base_layer;
 base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_'+currentYear+'_'+(currentDate.getMonth()).toString().padStart(2, '0')+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8', {
   minNativeZoom: 0,
   maxNativeZoom: 23,
-  attribution: 'Imagery &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors',
+  attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors',
   className: 'blurred-tile' // Add the CSS class here
 
 });
@@ -219,7 +219,7 @@ if (tileLayerContainer) {
 
         legend_ps.addTo(map);
       }
-      if(value.name=='PlanetScope'){
+    else if(value.name=='PlanetScope'){
         if (tileLayerContainer) {
           // console.log('xw');
           tileLayerContainer.style.filter = `blur(2px)`;
@@ -227,6 +227,9 @@ if (tileLayerContainer) {
         bvc_region.addTo(map);
         legend_ps_daily.addTo(map);
       }
+    else{
+      base_layer_legend.addTo(map);
+    }
     }
   }
   for (const [key, value] of Object.entries(SnowMaps[0].layers)) {

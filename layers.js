@@ -146,7 +146,7 @@ async function define_basemaps(date){
     biweekly_label = formatDateRange(startDateStr,endDateStr);
     imagery = L.tileLayer(planet_url, {
       maxZoom: 19,
-      attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
+      // attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors'
     });
     imagery.name = 'Imagery';
     if(!('Imagery' in active_layers))
@@ -181,7 +181,7 @@ async function define_basemaps(date){
     // });
     ps_daily = L.tileLayer(ps_daily_url, {
       tms: true,
-      attribution: 'PlanetScope',
+      // attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors',
       minNativeZoom: 0,
       maxNativeZoom: 23,
       // nativeZooms: [2, 7]
@@ -460,7 +460,7 @@ function aboundary(watershedGeoJSONFile,ws) {
 
     roads = L.tileLayer('https://mt{s}.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {
       // tms: true,
-      attribution: 'Google',
+      attribution: 'Roads and Borders from <a href="https://www.google.com">Google</a>',
       minNativeZoom: 0,
       maxNativeZoom: 23,
       subdomains: '123',
