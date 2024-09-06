@@ -216,7 +216,7 @@ if (tileLayerContainer) {
     if(active_layers_copy[value.name]==true){
     value.addTo(map);  
     if(value.name=='Imagery'){
-
+        map.removeLayer(base_layer);
         legend_ps.addTo(map);
       }
     else if(value.name=='PlanetScope'){
@@ -280,6 +280,7 @@ map.on('baselayerchange', function(e) {
     }
   }
   else if(e.layer.name=='PlanetScope'){
+    base_layer.addTo(map);
     bvc_region.addTo(map);
     legend_ps_daily.addTo(map);
     map.removeControl(legend_ps);
@@ -290,6 +291,7 @@ map.on('baselayerchange', function(e) {
     }
   }
   else{
+    base_layer.addTo(map);
     map.removeControl(legend_ps);
     map.removeControl(legend_ps_daily);
     map.removeControl(bvc_region);
