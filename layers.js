@@ -136,13 +136,12 @@ async function define_basemaps(date){
       active_layers['dft'] = true;
     
     if(date==null){
-      planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+      planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key='+planetApiKey;
   }else{
     try{
     var new_date  = get_date(date);
     const [startDateStr, endDateStr] = new_date.split('_');
-    // planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2024-03-18_2024-04-01_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
-    planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_'+new_date+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
+    planet_url = 'https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_'+new_date+'_mosaic/gmap/{z}/{x}/{y}.png?api_key='+planetApiKey;
     biweekly_label = formatDateRange(startDateStr,endDateStr);
     imagery = L.tileLayer(planet_url, {
       maxZoom: 19,
@@ -168,10 +167,9 @@ async function define_basemaps(date){
   
     console.log('date',date);
     // ps_daily_url = ps_daily_map[date];
-    // var ps_daily_url  = ps_daily_url+'.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8';
     daily_label = formatDateRange(date);
     date = date.replace(/-/g, '');
-    ps_daily_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/planet_daily/'+date+'/{z}/{x}/{y}.png';
+    ps_daily_url = 'https://storage.googleapis.com/asu-chi-snowviz-platform/data/planet_daily/'+date+'/{z}/{x}/{y}.png';
     // ps_daily_url = '/Users/kakashi/Desktop/PlanetViz/svr_tile_test/{z}/{x}/{y}.png';
 
     // ps_daily = L.tileLayer(ps_daily_url, {
@@ -203,8 +201,8 @@ async function define_basemaps(date){
       date = date.replace(/-/g, '');
       // date = '2021'+date.slice(4);
       // console.log()    
-      swe_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/SWANN/SWANN_SWE_' + date + '/{z}/{x}/{y}.png';
-      depth_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/SNODAS/SNODAS_DEPTH_'+'2021'+date.slice(4)+'/{z}/{x}/{y}.png';
+      swe_url = 'https://storage.googleapis.com/asu-chi-snowviz-platform/data/SWANN/SWANN_SWE_' + date + '/{z}/{x}/{y}.png';
+      depth_url = 'https://storage.googleapis.com/asu-chi-snowviz-platform/data/SNODAS/SNODAS_DEPTH_'+'2021'+date.slice(4)+'/{z}/{x}/{y}.png';
     }
     SWE = L.tileLayer(swe_url, {
       tms: true,
@@ -228,7 +226,7 @@ async function define_basemaps(date){
       active_layers['DEPTH'] = false;
 
     // asu_snow_url = 'data/asu_snow/'+date+'/{z}/{x}/{y}.png';
-    asu_snow_url = 'https://storage.googleapis.com/shrey-snowviz-platform/data/asu_snow/' + date + '/{z}/{x}/{y}.png';
+    asu_snow_url = 'https://storage.googleapis.com/asu-chi-snowviz-platform/data/asu_snow/' + date + '/{z}/{x}/{y}.png';
 
     // asu_snow_url = 'data/preds/snow_pred/{z}/{x}/{y}.png';
     asu_snow = L.tileLayer(asu_snow_url, {

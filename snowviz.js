@@ -10,7 +10,7 @@ var ps_daily_url;
 
 
 
-
+const planetApiKey = "__PLANET_API_KEY__";
 var circle;
 // var olayers = {};
 
@@ -34,7 +34,7 @@ define_basemaps(new Date().toISOString().split('T')[0]);
 define_snowmaps(new Date().toISOString().split('T')[0]);
 var base_layer;
 
-base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_'+currentYear+'_'+(currentDate.getMonth()).toString().padStart(2, '0')+'_mosaic/gmap/{z}/{x}/{y}.png?api_key=PLAK167d2e657cfb45bc816f8a79c651aee8', {
+base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_'+currentYear+'_'+(currentDate.getMonth()).toString().padStart(2, '0')+'_mosaic/gmap/{z}/{x}/{y}.png?api_key='+planetApiKey, {
   minNativeZoom: 0,
   maxNativeZoom: 23,
   attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors',
