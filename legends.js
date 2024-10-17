@@ -27,14 +27,14 @@ function getColor(d) {
   
   function legends(map,type){
     
-    var legend = L.control({position: 'bottomleft'});
+    var legend = L.control({position: 'bottomright'});
     
     legend.onAdd = function (map) {
     
         var containerDiv = L.DomUtil.create('div', 'legend-container');
         containerDiv.style.backgroundColor = '#ffffff'; // Set subtle background color
         containerDiv.style.border = '1px solid #ccc'; // Add border
-        containerDiv.style.borderRadius = '8px'; // Make edges rounded
+        containerDiv.style.borderRadius = '15px'; // Make edges rounded
         containerDiv.style.padding = '5px'; // Add padding
     containerDiv.style.width = '250px'; // Set width to 200 pixels
     containerDiv.style.height = '80px'; // Set height to 100 pixels
@@ -77,18 +77,21 @@ function getColor(d) {
     else{
       hstr = '<b>PS Global Monthly</b><br>' +text;
     }
-    var legend = L.control({position: 'bottomright'});
+    var legend = L.control({position: 'bottomleft'});
 
     
     legend.onAdd = function (map) {
         var containerDiv = L.DomUtil.create('div', 'legend-container');
         
         // Set styles for the container
-        containerDiv.style.backgroundColor = '#f9f9f9'; // Set subtle background color
+        containerDiv.style.backgroundColor = '#e9ecef'; // Set subtle background color
         containerDiv.style.border = '1px solid #ccc'; // Add border
-        containerDiv.style.borderRadius = '8px'; // Make edges rounded
+        containerDiv.style.borderRadius = '15px'; // Make edges rounded
         containerDiv.style.padding = '12px 0px 12px 0px'; // Add padding
-        containerDiv.style.width = '300px'; // Set width to 50 pixels (80% reduction)
+        containerDiv.style.width = '325px'; // Set width to 50 pixels (80% reduction)
+        containerDiv.style.fontFamily = 'Ubuntu-Regular, Arial, sans-serif';
+        containerDiv.style.margin = '0px 0px 28px 8px';
+
         // containerDiv.style.height = 'auto'; // Set height to auto
         // containerDiv.style.padding_top = '10px';
         

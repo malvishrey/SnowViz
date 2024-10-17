@@ -1,7 +1,7 @@
 L.Control.StyledLayerControl = L.Control.Layers.extend({
     options: {
         collapsed: true,
-        position: 'topright',
+        position: 'topleft',
         autoZIndex: true
     },
 
@@ -158,6 +158,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
         section.appendChild(form);
 
         if (this.options.collapsed) {
+            this._expand();
             if (!L.Browser.android) {
                 L.DomEvent
                     //.on(container, 'mouseover', this._expand, this)
@@ -500,7 +501,7 @@ L.Control.StyledLayerControl = L.Control.Layers.extend({
         //         });
         //     };
         // }
-        this._container.className = this._container.className.replace(' leaflet-control-layers-expanded', '');
+        // this._container.className = this._container.className.replace(' leaflet-control-layers-expanded', '');
         if (this._map != null) {
             this._map.scrollWheelZoom.enable();
             // this._map.dragging.enable();

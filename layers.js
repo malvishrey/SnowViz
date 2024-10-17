@@ -167,8 +167,10 @@ async function define_basemaps(date){
   
     console.log('date',date);
     // ps_daily_url = ps_daily_map[date];
+    // date = "2024-01-08";
     daily_label = formatDateRange(date);
     date = date.replace(/-/g, '');
+    // date = "20240108"
     ps_daily_url = 'https://storage.googleapis.com/asu-chi-snowviz-platform/data/planet_daily/'+date+'/{z}/{x}/{y}.png';
     // ps_daily_url = '/Users/kakashi/Desktop/PlanetViz/svr_tile_test/{z}/{x}/{y}.png';
 
@@ -452,8 +454,13 @@ function aboundary(watershedGeoJSONFile,ws) {
     WB_HU8.name = 'WB_HU8';
     if(!('WB_HU8' in active_layers))
         active_layers['WB_HU8'] = false;
+    if(init_snow==true){
+      bvc_region = addWatershedBoundary('data/svr_entire.geojson','BVC');
+    }
+    else{
+      bvc_region = addWatershedBoundary('data/huc10_bvc.geojson','BVC');
 
-    bvc_region = addWatershedBoundary('data/huc10_bvc.geojson','BVC');
+    }
     bvc_region.name = 'BVC';
 
     roads = L.tileLayer('https://mt{s}.google.com/vt/lyrs=h&x={x}&y={y}&z={z}', {

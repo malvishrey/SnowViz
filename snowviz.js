@@ -10,16 +10,18 @@ var ps_daily_url;
 
 
 
-const planetApiKey = "__PLANET_API_KEY__";
+const planetApiKey = "PLAK167d2e657cfb45bc816f8a79c651aee8";
 var circle;
 // var olayers = {};
 
 var SNOTELCustomID = 'SNOTEL';
 var roads;
-
+var init = false;
+var init_snow = false;
 var SNOTEL;
 var WB_HU2,WB_HU6,WB_HU4,WB_HU8,bvc_region;
 var currentDate = new Date();
+// var svr_region;
 
 // Get the current day (0-6, where 0 represents Sunday)
 var currentDay = currentDate.getDate();
@@ -34,7 +36,14 @@ define_basemaps(new Date().toISOString().split('T')[0]);
 define_snowmaps(new Date().toISOString().split('T')[0]);
 var base_layer;
 
-base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_'+currentYear+'_'+(currentDate.getMonth()).toString().padStart(2, '0')+'_mosaic/gmap/{z}/{x}/{y}.png?api_key='+planetApiKey, {
+// base_layer = L.tileLayer('https://tiles.planet.com/basemaps/v1/planet-tiles/global_monthly_'+currentYear+'_'+(currentDate.getMonth()).toString().padStart(2, '0')+'_mosaic/gmap/{z}/{x}/{y}.png?api_key='+planetApiKey, {
+//   minNativeZoom: 0,
+//   maxNativeZoom: 23,
+//   attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors',
+//   className: 'blurred-tile' // Add the CSS class here
+
+// });
+base_layer = L.tileLayer('https://tiles3.planet.com/basemaps/v1/planet-tiles/ps_biweekly_visual_subscription_2023-01-23_2023-02-06_mosaic/gmap/{z}/{x}/{y}.png?api_key='+planetApiKey, {
   minNativeZoom: 0,
   maxNativeZoom: 23,
   attribution: 'Imagery &copy; <a href="https://www.planet.com/">2023 Planet Labs PBC</a> contributors',
@@ -47,7 +56,8 @@ var map = L.map('map', {
   zoomControl: false, // Default basemap layer
   maxZoom: 15               // Restrict maximum zoom level to 18
 
-}).setView([34.9133, -111.5589], 8);
+}).setView([34.9133, -111.5589], 7);
+L.control.scale({ position: 'bottomleft' }).addTo(map);
 
 
 L.control.zoom({
@@ -71,20 +81,22 @@ var legend_ps_daily = legends2(map,daily_label,'daily');
 const monthName = (monthNumber) => new Date(currentYear, monthNumber - 1).toLocaleString('en-US', { month: 'long' });
 const monthNameFor = monthName(currentMonth); // Output: "Aug"
 console.log(monthNameFor);
-var base_layer_legend =legends2(map,monthNameFor+' '+currentYear,'monthly');
+// var base_layer_legend =legends2(map,monthNameFor+' '+currentYear,'monthly');
+var base_layer_legend =legends2(map,'Jan 23, 2023 to Feb 05, 2023','biweekly');
+
 base_layer_legend.addTo(map);
 
 
 
 var baseMaps = [
   { 
-    groupName : "Base Maps",
-    expanded : false  ,
+    groupName : "True Color Imagery",
+    expanded : true  ,
     layers    : {
       "Dynamic": dft,
-    "Bi-Weekly Mosaic": imagery,
+    "PS Bi-Weekly: Bi-weekly seamless mosaic of PS imagery": imagery,
     // "cogs":cogs,
-    "PlanetScope": ps_daily,
+    "PS Daily: PlanetScope (PS) daily imagery at 3-meter": ps_daily,
     
     }
   }							
@@ -104,33 +116,39 @@ var options = {
 // console.log(olayers);
 var SnowMaps = [
     { 
-      groupName : "Snow Maps",
+      groupName : "Dynamic Snow Product",
       expanded : true,
       exclusive: true,
       layers    : {
         "No Layer":L.tileLayer(''),
-        "SNODAS DEPTH": DEPTH,
-      "SWANN SWE": SWE,
-      "ASU Snow Product": asu_snow,
+        // "SNODAS DEPTH": DEPTH,
+      "SWE (1-km): Simulated SWE from the SWANN system": SWE,
+      "Snow Cover (3-m): Daily snow cover derived - PS imagery": asu_snow,
      
       }
     },
     { 
-      groupName : "Overlays",
-      expanded : false,
+      groupName : "Vector Data",
+      expanded : true,
       exclusive: false,
       layers    : {
-        "SNOTEL":SNOTEL,
-        "WB_HU2":WB_HU2,
-        "WB_HU4":WB_HU4,
-        "WB_HU6":WB_HU6,
-        "WB_HU8":WB_HU8,
+        "SNOTELs":SNOTEL,
+        // "WB_HU2":WB_HU2,
+        // "WB_HU4":WB_HU4,
+        // "WB_HU6":WB_HU6,
+        "Watersheds HUC8":WB_HU8,
         "Roads and Borders": roads,
         
       }
     }									
   ];
 var tileLayerContainer;
+tileLayerContainer = document.querySelector('.blurred-tile');
+console.log(document.querySelector('.blurred-tile'));
+if (tileLayerContainer) {
+  // console.log('xw');
+  tileLayerContainer.style.filter = `blur(0px)`;
+}
 var control = L.Control.styledLayerControl(baseMaps, SnowMaps, options).addTo(map);
 var aboundary = aboundary('az_county.geojson','arizona');
 aboundary.addTo(map);
@@ -160,7 +178,9 @@ if (tileLayerContainer) {
   map.removeControl(legend_ps);
   map.removeControl(legend_ps_daily);
   map.removeControl(base_layer_legend);
-  base_layer_legend =legends2(map,monthNameFor+' '+currentYear,'monthly');
+  // base_layer_legend =legends2(map,monthNameFor+' '+currentYear,'monthly');
+  base_layer_legend =legends2(map,'Jan 23, 2023 to Feb 05, 2023','biweekly');
+
   
 
   update_basemaps(date);
@@ -172,41 +192,41 @@ if (tileLayerContainer) {
 
   baseMaps = [
     { 
-      groupName : "Base Maps",
-      expanded : false  ,
+      groupName : "True Color Imagery",
+      expanded : true  ,
       layers    : {
         "Dynamic": dft,
-      "Bi-Weekly Mosaic": imagery,
+      "PS Bi-Weekly: Bi-weekly seamless mosaic of PS imagery": imagery,
       // "cogs":cogs,
-      "PlanetScope": ps_daily,
+      "PS Daily: PlanetScope (PS) daily imagery at 3-meter": ps_daily,
    
       }
     }							
   ];	
   SnowMaps = [
     { 
-      groupName : "Snow Maps",
+      groupName : "Dynamic Snow Product",
       expanded : true,
       exclusive: true,
       layers    : {
         "No Layer":L.tileLayer(''),
-        "SNODAS DEPTH": DEPTH,
-      "SWANN SWE": SWE,
-      "ASU Snow Product": asu_snow,
+        // "SNODAS DEPTH": DEPTH,
+      "SWE (1-km): Simulated SWE from the SWANN system": SWE,
+      "Snow Cover (3-m): Daily snow cover derived - PS imagery": asu_snow,
      
       }
     },
     { 
-      groupName : "Overlays",
-      expanded : false,
+      groupName : "Vector Data",
+      expanded : true,
       exclusive: false,
       layers    : {
         
-        "SNOTEL":SNOTEL,
-        "WB_HU2":WB_HU2,
-        "WB_HU4":WB_HU4,
-        "WB_HU6":WB_HU6,
-        "WB_HU8":WB_HU8,
+        "SNOTELs":SNOTEL,
+        // "WB_HU2":WB_HU2,
+        // "WB_HU4":WB_HU4,
+        // "WB_HU6":WB_HU6,
+        "Watersheds HUC8":WB_HU8,
         "Roads and Borders": roads,
         
       }
@@ -223,6 +243,14 @@ if (tileLayerContainer) {
         if (tileLayerContainer) {
           // console.log('xw');
           tileLayerContainer.style.filter = `blur(2px)`;
+        }
+        console.log(date);
+        if(date!='2024-01-08'){
+          bvc_region = addWatershedBoundary('data/huc10_bvc.geojson','BVC');
+        }
+        else{
+          bvc_region = addWatershedBoundary('data/svr_entire.geojson','BVC');
+
         }
         bvc_region.addTo(map);
         legend_ps_daily.addTo(map);
@@ -267,8 +295,26 @@ map.on('baselayerchange', function(e) {
   for (const [key, value] of Object.entries(baseMaps[0].layers)) {
     active_layers[value.name] = false;
     }
+
   
   active_layers[e.layer.name] = true;
+  if(e.layer.name=='PlanetScope'){
+    if(init==false && init_snow==false){
+      // init = true;
+      // update_basemaps("2024-01-08");
+      // define_snowmaps("2024-01-08");
+      // $("#datepicker").datepicker("setDate", new Date(2024,0,8));
+      // legend_ps_daily = legends2(map,"Jan 08, 2024",'daily');
+      // map.setZoom(8);
+      init = true;
+      
+      updateSnowLayers("2024-01-08");
+
+      $("#datepicker").datepicker("setDate", new Date(2024,0,8));
+      map.setZoom(8);
+
+    }
+  }
   if(e.layer.name=='Imagery'){
     legend_ps.addTo(map);
     map.removeControl(legend_ps_daily);
@@ -289,6 +335,12 @@ map.on('baselayerchange', function(e) {
       // console.log('xw');
       tileLayerContainer.style.filter = `blur(2px)`;
     }
+    // if(init==false){
+    //   init = true;
+    //   $("#datepicker").datepicker("setDate", new Date(2024,0,8));
+    //   map.setZoom(8);
+
+    // }
   }
   else{
     base_layer.addTo(map);
@@ -309,6 +361,14 @@ map.on('baselayerchange', function(e) {
 map.on('overlayadd', function(e) {
   console.log('added',e);
   active_layers[e.layer.name] = true;
+  if(e.layer.name=='asu_snow'){
+    if(init_snow==false){
+      init_snow = true;
+      updateSnowLayers("2022-12-15");
+      $("#datepicker").datepicker("setDate", new Date(2022,11,15));
+      map.setZoom(10);
+    }
+  }
   if(e.layer.name=='SWE'){
     legend_swe.addTo(map);
   }
@@ -325,6 +385,15 @@ map.on('overlayadd', function(e) {
 map.on('overlayremove', function(e) {
   console.log('remove',e);
   active_layers[e.layer.name] = false;
+  // if(e.layer.name=='asu_snow'){
+  //   if(init_snow==false){
+  //     init_snow = true;
+      
+  //     $("#datepicker").datepicker("setDate", new Date(2022,11,15));
+  //     map.setZoom(10);
+  //     updateSnowLayers("2022-12-15");
+  //   }
+  // }
 
   if(e.layer.name=='SWE'){
     map.removeControl(legend_swe);
@@ -439,28 +508,32 @@ else{
     //     }
     // }
 // Initialize jQuery UI Datepicker widget
+// let today = new Date();
+// today.setDate(today.getDate() -40);
+
 $(function() {
-  
   $("#datepicker").datepicker({
     dateFormat: 'yy-mm-dd',
     changeMonth: true,
       changeYear: true,
       maxDate:new Date().toISOString().split('T')[0],
+      
     beforeShowDay: unavailable,
     onSelect: function(dateText) {
       // Call the function to update SWE and Depth layers based on the selected date
+      // console.log('asdas',dateText);
       updateSnowLayers(dateText);
       setTimeout(() => {
+        // $("#datepicker").datepicker("setDate", today);
         $(this).datepicker("show");
       }, 0); 
     }
   });
-  
+  $("#datepicker").datepicker("show");
   
 });
 
 // legend.addTo(map);
-L.control.scale().addTo(map);
 
 
 

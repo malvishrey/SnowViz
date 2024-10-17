@@ -73,96 +73,125 @@
             height: 400px;
             z-index: 0; /* Set z-index for the map container */
         }
-
-        #datepicker {
-			position: absolute;
-			top: 10px;
-			right: 10px;
-			z-index: 1;
-        }
-		.image-button {
-    /* display: inline-block; */
-    border: none;
-    background-color: white; /* Background color for the button */
-    cursor: pointer;
-    width: 35px; /* Width of the button */
-    height: 35px; /* Height of the button */
-    padding: 3px; /* Remove padding */
-	position: absolute;
-			top: -1px;
-			right: -950px;
-			z-index: 1;
-  }
+        
+        /* #datepicker { */
+          /* display: none; */
+			/* position: absolute; */
+			/* top: 10px; */
+			/* right: 10px; */
+			/* z-index: 1; */
+        /* } */
+	
 
   /* Style for the icon */
-  .image-button img {
-    width: 100%; /* Make the icon fill the button */
-    height: auto; /* Maintain aspect ratio */
-  }
+  /* img {
+    width: 70%; 
+    height: auto; 
+    margin-top: 20px;
+    float: center;
+    margin-left: 20px;
+  } */
 
 		.image-overlay {
     position: absolute;
     background-color: #e9ecef;
-    border-radius: 0.4rem 0.4rem 0.4rem 0.4rem;
-    top: 5px;
+    border-radius: 15px;
+    top: 10px;
     left: 10px;
-    width: 9%;
-    height: 18%;
+    width: 23%;
+    height: 82%;
     z-index: 999; /* Ensure it's above the map */
   }
 
   /* Style for the image */
-  .image-overlay img {
+  /* .image-overlay  {
     max-width: 100%;
     max-height: 100%;
     display: block;
     margin: auto;
-  }
+  } */
+  #dt {
+    position: relative;
+    top: 330px;
+    left: 30px;
+    font-size: 20px;
+    font-weight:bolder;
 
-  .ui-datepicker {
-      font-size: 0.8rem; /* Decrease font size */
-      border-radius: 0.2rem; /* Decrease border radius */
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Adjust box shadow */
-    }
-    .ui-datepicker-header {
-      background-color: #f8f9fa;
-      color: #333;
-      border-radius: 0.2rem 0.2rem 0 0;
-      border: none;
-    }
-    .ui-datepicker-calendar {
-      border: none;
-      background-color: #fff;
-      border-radius: 0 0 0.2rem 0.2rem;
-    }
-    .ui-datepicker-prev, .ui-datepicker-next {
-      width: 20px; /* Decrease navigation button size */
-      height: 20px;
-    }
-    .ui-datepicker-prev span, .ui-datepicker-next span {
-      margin-top: 2px;
-    }
-    .ui-datepicker-prev span.ui-icon, .ui-datepicker-next span.ui-icon {
-      padding: 6px; /* Adjust padding */
-    }
-    .ui-datepicker-title {
-      border-radius: 0.2rem;
-      background-color: #e9ecef;
-      padding: 0.3rem;
-    }
-    .ui-datepicker-calendar a {
-      font-size: 0.8rem; /* Decrease font size of dates */
-      color: #007bff;
-    }
-    .ui-datepicker-calendar a.ui-state-highlight {
-      background-color: #007bff;
-      color: #fff;
-    }
-    .ui-datepicker-buttonpane {
-      border-top: none;
-      background-color: #e9ecef;
-      border-radius: 0 0 0.2rem 0.2rem;
-    }
+
+}
+  #inputs {
+    position: relative;
+    top: 290px;
+    float: center;
+    left: 80px;
+}
+
+/* Hide the datepicker input */
+#datepicker {
+    font-size: 0.6rem; /* Decrease font size */
+    border-radius: 0.5rem; /* Rounded corners */
+    padding: 5px; /* Padding inside the input */
+    border: 1px solid #fff; /* Border color */
+    visibility: hidden; /* Hide the input */
+}
+
+/* Overall datepicker styles */
+.ui-datepicker {
+  font-family: 'Ubuntu-Regular', Arial, sans-serif; /* Apply custom font */
+
+    font-size: 0.6rem; /* Decrease font size */
+    border-radius: 15px; /* Rounded corners */
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1); /* Adjust box shadow */
+    display: block !important;
+}
+
+.ui-datepicker-header {
+    background-color: #fff;
+    color: #333;
+    border-radius: 0.5rem 0.5rem 0 0; /* Rounded corners */
+    border: none;
+}
+
+.ui-datepicker-calendar {
+    border: none;
+    background-color: #fff;
+    border-radius: 0 0 0.5rem 0.5rem; /* Rounded corners */
+}
+
+.ui-datepicker-prev, .ui-datepicker-next {
+    width: 20px; /* Decrease navigation button size */
+    height: 20px;
+}
+
+.ui-datepicker-prev span, .ui-datepicker-next span {
+    margin-top: 2px;
+}
+
+.ui-datepicker-prev span.ui-icon, .ui-datepicker-next span.ui-icon {
+    padding: 6px; /* Adjust padding */
+}
+
+.ui-datepicker-title {
+    border-radius: 0.5rem; /* Rounded corners */
+    background-color: #fff;
+    padding: 0.3rem;
+}
+
+.ui-datepicker-calendar a {
+    font-size: 0.6rem; /* Decrease font size of dates */
+    color: #007bff;
+}
+
+.ui-datepicker-calendar a.ui-state-highlight {
+    background-color: #007bff;
+    color: #fff;
+}
+
+.ui-datepicker-buttonpane {
+    border-top: none;
+    background-color: #e9ecef;
+    border-radius: 0 0 0.5rem 0.5rem; /* Rounded corners */
+}
 	</style>
 
 	
@@ -171,14 +200,22 @@
 
 
 	
-<div id="map" style="width: 2000px; height: 1000px;"><div class="image-overlay">
+<div id="map" style="width: 2000px; height: 1000px;">
+  <div class="image-overlay">
 	<!-- <button class="image-button" onclick="handleButtonClick()">
 		<img src="split-screen.svg" alt="Dual Panel">
 	  </button> -->
     <!-- Image -->
-    <img src="ASU-CHI-Vert-RGB-MaroonGold-600ppi (1).png" alt="Your Image">
+    <!-- <img src="ASU-CHI-Vert-RGB-MaroonGold-600ppi (1).png" alt="Your Image"> -->
+    <img src="Output_FileName1001.png" alt="Your Image"  style="width: 70%; height: auto; margin-top: 20px; float: none; margin-left: 13%;">
+    <!-- <label id="dt">Select date</label> -->
+
+    <div id = "inputs">
+    <input type="text" id="datepicker" style="font-size: 0.8rem;" placeholder="Select Date" autocomplete="off">
+    </div>
+
   </div></div>
-<input type="text" id="datepicker" style="font-size: 0.8rem;" placeholder="Select Date" autocomplete="off">
+  <!-- <input type="text" id="datepicker" style="font-size: 0.8rem;" placeholder="Select Date" autocomplete="off"> -->
 
 <script src="legends.js"></script>
 <script src="layers.js"></script>
