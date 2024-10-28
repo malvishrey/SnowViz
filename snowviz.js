@@ -136,7 +136,7 @@ var SnowMaps = [
         "SNOTELs":SNOTEL,
         // "WB_HU2":WB_HU2,
         // "WB_HU4":WB_HU4,
-        "WB_HU8":WB_HU8,
+        "Watersheds HUC8":WB_HU8,
         "Elevation Contour":elevation_contour,
         "Roads and Borders": roads,
         
@@ -227,7 +227,7 @@ if (tileLayerContainer) {
         // "WB_HU2":WB_HU2,
         // "WB_HU4":WB_HU4,
         // "WB_HU6":WB_HU6,
-        "WB_HU8":WB_HU8,
+        "Watersheds HUC8":WB_HU8,
         "Elevation Contour":elevation_contour,
         "Roads and Borders": roads,
         

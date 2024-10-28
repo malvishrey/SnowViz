@@ -49,7 +49,7 @@ function getColor(d) {
     img.src= 'ts3.png'
   }
   else if (type=='elevation_contour'){
-    img.src = 'contour1.png'
+    img.src = 'contour2.png'
   }
     img.style.display = 'block';
     // img.style.margin = 'auto';
