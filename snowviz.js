@@ -19,7 +19,7 @@ var roads;
 var init = false;
 var init_snow = false;
 var SNOTEL;
-var WB_HU2,WB_HU6,WB_HU4,WB_HU8,bvc_region;
+var WB_HU2,WB_HU6,WB_HU4,WB_HU8,bvc_region,elevation_contour;
 var currentDate = new Date();
 // var svr_region;
 
@@ -75,6 +75,7 @@ roads.addTo(map);
 var legend_swe = legends(map,'SWE');
 var legend_depth = legends(map,'DEPTH');
 var legend_asu_snow = legends(map,'asu_snow');
+var legend_contour = legends(map,'elevation_contour');
 var legend_ps = legends2(map,biweekly_label,'biweekly');
 var legend_ps_daily = legends2(map,daily_label,'daily');
 
@@ -135,8 +136,8 @@ var SnowMaps = [
         "SNOTELs":SNOTEL,
         // "WB_HU2":WB_HU2,
         // "WB_HU4":WB_HU4,
-        // "WB_HU6":WB_HU6,
-        "Watersheds HUC8":WB_HU8,
+        "WB_HU8":WB_HU8,
+        "Elevation Contour":elevation_contour,
         "Roads and Borders": roads,
         
       }
@@ -226,7 +227,8 @@ if (tileLayerContainer) {
         // "WB_HU2":WB_HU2,
         // "WB_HU4":WB_HU4,
         // "WB_HU6":WB_HU6,
-        "Watersheds HUC8":WB_HU8,
+        "WB_HU8":WB_HU8,
+        "Elevation Contour":elevation_contour,
         "Roads and Borders": roads,
         
       }
@@ -280,6 +282,9 @@ if (tileLayerContainer) {
     if(active_layers_copy[value.name]==true){
       console.log('xreac',value);
       value.addTo(map);
+      if(value.name=='elevation_contour'){
+        legend_contour.addTo(map);
+      }
     }
   }
   
@@ -378,6 +383,9 @@ map.on('overlayadd', function(e) {
   if(e.layer.name=='asu_snow'){
     legend_asu_snow.addTo(map);
   }
+  if(e.layer.name=='elevation_contour'){
+    legend_contour.addTo(map);
+  }
   console.log(active_layers);
 
   
@@ -406,6 +414,10 @@ map.on('overlayremove', function(e) {
   if(e.layer.name=='asu_snow'){
     map.removeControl(legend_asu_snow);
     legend_asu_snow = legends(map,'asu_snow');
+  }
+  if(e.layer.name=='elevation_contour'){
+    map.removeControl(legend_contour);
+    legend_contour = legends(map,'elevation_contour');
   }
 });
 

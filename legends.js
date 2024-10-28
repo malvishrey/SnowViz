@@ -36,8 +36,8 @@ function getColor(d) {
         containerDiv.style.border = '1px solid #ccc'; // Add border
         containerDiv.style.borderRadius = '15px'; // Make edges rounded
         containerDiv.style.padding = '5px'; // Add padding
-    containerDiv.style.width = '250px'; // Set width to 200 pixels
-    containerDiv.style.height = '80px'; // Set height to 100 pixels
+    containerDiv.style.width = '300px'; // Set width to 200 pixels
+    containerDiv.style.height = '100px'; // Set height to 100 pixels
     
     var img = document.createElement('img');
     if(type=='SWE'){
@@ -45,8 +45,11 @@ function getColor(d) {
   }else if (type=='DEPTH'){
     img.src = 'ts2.png';
   }
-  else{
+  else if (type=='asu_snow'){
     img.src= 'ts3.png'
+  }
+  else if (type=='elevation_contour'){
+    img.src = 'contour1.png'
   }
     img.style.display = 'block';
     // img.style.margin = 'auto';

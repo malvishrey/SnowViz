@@ -356,6 +356,66 @@ function aboundary(watershedGeoJSONFile,ws) {
     return watershed_boundary
 }  
 
+function addContour(watershedGeoJSONFile, ws) {
+  // Define the elevation-to-color dictionary (hex values from your Python output)
+  var elevationColorMap = {
+    3000: '#543005',
+    4000: '#a16518',
+    5000: '#dbb972',
+    6000: '#f6ecd1',
+    7000: '#d4ede9',
+    8000: '#76c6ba',
+    9000: '#167a72',
+    10000: '#003c30'
+  };
+
+  // Function to define the style for each feature based on its elevation
+  function style(feature) {
+    // Convert elevation to an integer
+    var elevation = parseInt(feature.properties.ELEV, 10);
+
+    // Default color (if elevation doesn't match exactly in the dictionary)
+    var color = '#000000'; // black for undefined elevations
+
+    // Check if the elevation exists in the color dictionary
+    if (elevationColorMap[elevation]) {
+      color = elevationColorMap[elevation];
+    }
+
+    // Return the style for this feature
+    return {
+      color: color,      // Set the line color based on elevation
+      weight: 4,         // Line width
+      opacity: 1.0,      // Line opacity
+      fillOpacity: 0.0   // No fill opacity (as required)
+    };
+  }
+
+  // Create the GeoJSON layer with a per-feature style
+  var contour = new L.geoJson(null, {
+    style: style // Set the style function to apply the color per feature
+  });
+
+  // Load the GeoJSON data via AJAX
+  $.ajax({
+    url: watershedGeoJSONFile,
+    beforeSend: function(xhr) {
+      if (xhr.overrideMimeType) {
+        xhr.overrideMimeType("application/json");
+      }
+    },
+    dataType: "json",
+    success: function(data) {
+      // Add the GeoJSON data to the contour layer
+      contour.addData(data);
+    }
+  });
+
+  // Assign a unique leaflet ID
+  contour._leaflet_id = ws;
+  return contour;
+}
+
 
   function define_overlays(){
     SNOTEL = L.layerGroup();
@@ -454,6 +514,12 @@ function aboundary(watershedGeoJSONFile,ws) {
     WB_HU8.name = 'WB_HU8';
     if(!('WB_HU8' in active_layers))
         active_layers['WB_HU8'] = false;
+
+    elevation_contour = addContour('data/elevation_contour.geojson','elevation_contour');
+    elevation_contour.name = 'elevation_contour';
+    if(!('elevation_contour' in active_layers))
+        active_layers['elevation_contour'] = false;
+
     if(init_snow==true){
       bvc_region = addWatershedBoundary('data/svr_entire.geojson','BVC');
     }
