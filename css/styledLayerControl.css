@@ -25,7 +25,7 @@
 	text-align: left;
 	overflow-y: auto;
 	overflow-x: hidden;
-	height: auto;
+	height: 310px;
 }
 
 div[id^="leaflet-control-accordion-layers"] > label {
@@ -193,6 +193,7 @@ div[id^="leaflet-control-accordion-layers"] > label:hover {
     margin-top: 130px;
 	margin-left: 15px;
 	width: 315px;
+	height: 320px;
 }
 section.ac-container.leaflet-control-layers-list {
     width: 305px !important;
